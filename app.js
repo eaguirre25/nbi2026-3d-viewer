@@ -1562,6 +1562,10 @@ document.getElementById("isochronesLink").addEventListener("click", () => {
   window.location.href = "isocronas_escolares/";
 });
 
+document.getElementById("heatmapLink").addEventListener("click", () => {
+  window.location.href = "heatmap_matricula/";
+});
+
 setupKeyboardNavigation();
 
 document.querySelectorAll(".legend-row").forEach((button) => {

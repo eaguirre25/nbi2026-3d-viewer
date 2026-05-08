@@ -54,12 +54,23 @@ h1 {
   font-size: 13px;
 }
 
+.view-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-top: 12px;
+}
+
 .back-link {
   display: inline-block;
-  margin-top: 12px;
+  padding: 7px 8px;
   color: #1d4ed8;
+  background: rgba(219, 234, 254, 0.72);
+  border: 1px solid rgba(37, 99, 235, 0.16);
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 800;
+  text-align: center;
   text-decoration: none;
 }
 
