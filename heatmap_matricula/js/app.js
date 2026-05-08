@@ -64,6 +64,7 @@ function featureCollection(features) {
 
 function addSources() {
   map.addSource("matricula", { type: "geojson", data: state.data.matricula });
+  map.addSource("reached-students", { type: "geojson", data: featureCollection([]) });
   map.addSource("schools", { type: "geojson", data: state.data.schools });
   map.addSource("limit", { type: "geojson", data: state.data.limit });
   map.addSource("rings", { type: "geojson", data: featureCollection([]) });
@@ -147,6 +148,30 @@ function addLayers() {
   });
 
   map.addLayer({
+    id: "reached-students-glow",
+    type: "circle",
+    source: "reached-students",
+    paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 4.5, 15, 8.5],
+      "circle-color": ["get", "color"],
+      "circle-opacity": 0.34,
+      "circle-blur": 0.7,
+    },
+  });
+  map.addLayer({
+    id: "reached-students",
+    type: "circle",
+    source: "reached-students",
+    paint: {
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 2.2, 15, 4.2],
+      "circle-color": ["get", "color"],
+      "circle-stroke-color": "#ffffff",
+      "circle-stroke-width": 0.9,
+      "circle-opacity": 0.95,
+    },
+  });
+
+  map.addLayer({
     id: "school-points",
     type: "circle",
     source: "schools",
@@ -215,6 +240,29 @@ function buildRingFeatures() {
   return featureCollection(features);
 }
 
+function reachedStudentFeatures() {
+  const reached = [];
+  schoolFeatures().forEach((school) => {
+    const id = school.properties.school_id;
+    if (!state.visible[id]) return;
+    const origin = turf.point(school.geometry.coordinates);
+    studentFeaturesFor(id).forEach((student) => {
+      const meters = turf.distance(origin, student, { units: "kilometers" }) * 1000;
+      if (meters <= state.maxRadius) {
+        reached.push({
+          ...student,
+          properties: {
+            ...student.properties,
+            distance_m: Math.round(meters),
+            color: SCHOOL_COLORS[id],
+          },
+        });
+      }
+    });
+  });
+  return featureCollection(reached);
+}
+
 function updateLayers() {
   ["walsh", "galeano", "pizarnik"].forEach((id) => {
     const visible = state.visible[id] && (state.selectedSchool === "all" || state.selectedSchool === id);
@@ -225,6 +273,7 @@ function updateLayers() {
   map.setFilter("student-points", schoolFilter);
   map.setFilter("school-points", schoolFilter);
   map.getSource("rings").setData(buildRingFeatures());
+  map.getSource("reached-students").setData(reachedStudentFeatures());
   updateRadar();
 }
 
@@ -290,6 +339,11 @@ function updateRadar() {
   drawRadarForSchool(school);
 }
 
+function updateRadiusReadout() {
+  const label = `${fmt(state.maxRadius)} m`;
+  document.getElementById("radiusBig").textContent = label;
+}
+
 function setupControls() {
   const select = document.getElementById("schoolSelect");
   state.data.schools.features.forEach((school) => {
@@ -306,7 +360,7 @@ function setupControls() {
   });
   document.getElementById("radiusSlider").addEventListener("input", (event) => {
     state.maxRadius = Number(event.target.value);
-    document.getElementById("radiusLabel").textContent = `${fmt(state.maxRadius)} m`;
+    updateRadiusReadout();
     updateLayers();
   });
   document.getElementById("heatSlider").addEventListener("input", (event) => {
@@ -347,6 +401,7 @@ async function init() {
   addSources();
   addLayers();
   setupControls();
+  updateRadiusReadout();
   updateLayers();
   fitToData();
 }

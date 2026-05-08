@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mapa de calor de matrícula escolar</title>
     <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/styles.css?v=20260508-heatmap01" />
+    <link rel="stylesheet" href="css/styles.css?v=20260508-heatmap02" />
   </head>
   <body>
     <main id="map" aria-label="Mapa de calor de matrícula escolar"></main>
@@ -26,10 +26,6 @@
         <select id="schoolSelect">
           <option value="all">Todas las escuelas</option>
         </select>
-      </label>
-      <label>
-        Radio máximo: <strong id="radiusLabel">1.500 m</strong>
-        <input id="radiusSlider" type="range" min="200" max="3000" step="50" value="1500" />
       </label>
       <label>
         Intensidad de calor
@@ -57,6 +53,11 @@
         <h2>Radar radial</h2>
         <span id="radarSubtitle">Seleccioná una escuela</span>
       </header>
+      <section class="radial-control">
+        <span>Radio medido</span>
+        <strong id="radiusBig">1.500 m</strong>
+        <input id="radiusSlider" type="range" min="200" max="3000" step="50" value="1500" />
+      </section>
       <div class="radar-wrap">
         <svg id="radarSvg" viewBox="0 0 260 260" role="img" aria-label="Radar radial de matrícula"></svg>
       </div>
@@ -66,6 +67,6 @@
 
     <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
     <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
-    <script src="js/app.js?v=20260508-heatmap01"></script>
+    <script src="js/app.js?v=20260508-heatmap02"></script>
   </body>
 </html>
