@@ -431,11 +431,11 @@ function addLayers() {
     type: "circle",
     source: "walk-particles",
     paint: {
-      "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 1.9, 15, 3.5],
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 2.4, 15, 4.4],
       "circle-color": ["get", "color"],
       "circle-stroke-color": "#ffffff",
-      "circle-stroke-width": 0.8,
-      "circle-opacity": 0.86,
+      "circle-stroke-width": 1,
+      "circle-opacity": 0.94,
     },
   });
 
@@ -868,10 +868,10 @@ function updateWalkAnimation() {
       const schoolId = route.properties.school_id;
       const schoolEnrollment = enrollmentTotals[schoolId] || 0;
       const schoolRoutes = Math.max(1, walkRouteTotals[schoolId] || 1);
-      const particles = Math.max(3, Math.min(8, Math.ceil(schoolEnrollment / schoolRoutes / 2)));
+      const particles = Math.max(10, Math.min(22, Math.ceil(schoolEnrollment / schoolRoutes * 1.35)));
       const offset = (index % 17) / 17;
       for (let particle = 0; particle < particles; particle += 1) {
-        const cycle = (elapsed + offset + (particle / particles) * 0.82) % 1;
+        const cycle = (elapsed + offset + (particle / particles) * 0.96) % 1;
         const fraction = Math.min(1, cycle / 0.82);
         features.push({
           type: "Feature",
