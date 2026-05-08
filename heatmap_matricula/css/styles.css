@@ -169,6 +169,15 @@ input[type="range"] {
   border-top: 1px dashed rgba(226, 232, 240, 0.8);
 }
 
+.swatch.renabap {
+  width: 28px;
+  height: 16px;
+  background:
+    repeating-linear-gradient(45deg, rgba(45, 212, 191, 0.68) 0 4px, rgba(45, 212, 191, 0.12) 4px 8px),
+    rgba(13, 148, 136, 0.2);
+  border: 1px solid rgba(94, 234, 212, 0.82);
+}
+
 .radar-panel {
   top: 18px;
   right: 18px;

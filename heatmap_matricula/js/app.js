@@ -14,7 +14,7 @@ const state = {
   selectedSchool: "all",
   maxRadius: 1500,
   heatIntensity: 1.05,
-  visible: { walsh: true, galeano: true, pizarnik: true, rings: true },
+  visible: { walsh: true, galeano: true, pizarnik: true, rings: true, renabap: true },
   data: {},
 };
 
@@ -50,6 +50,15 @@ async function fetchJson(path) {
   return response.json();
 }
 
+async function fetchOptionalJson(path) {
+  try {
+    return await fetchJson(path);
+  } catch (error) {
+    console.warn(`Capa opcional no disponible: ${path}`, error);
+    return featureCollection([]);
+  }
+}
+
 function fmt(value) {
   return new Intl.NumberFormat("es-AR").format(Math.round(value || 0));
 }
@@ -67,6 +76,7 @@ function addSources() {
   map.addSource("reached-students", { type: "geojson", data: featureCollection([]) });
   map.addSource("schools", { type: "geojson", data: state.data.schools });
   map.addSource("limit", { type: "geojson", data: state.data.limit });
+  map.addSource("renabap", { type: "geojson", data: state.data.renabap });
   map.addSource("rings", { type: "geojson", data: featureCollection([]) });
 }
 
@@ -94,6 +104,27 @@ function addLayers() {
       "line-color": "rgba(226,232,240,0.72)",
       "line-width": 1.6,
       "line-dasharray": [3, 2],
+    },
+  });
+
+  map.addLayer({
+    id: "renabap-fill",
+    type: "fill",
+    source: "renabap",
+    paint: {
+      "fill-color": "#0f766e",
+      "fill-opacity": 0.22,
+    },
+  });
+  map.addLayer({
+    id: "renabap-line",
+    type: "line",
+    source: "renabap",
+    paint: {
+      "line-color": "#5eead4",
+      "line-width": 1,
+      "line-opacity": 0.8,
+      "line-dasharray": [1.4, 1],
     },
   });
 
@@ -270,6 +301,9 @@ function updateLayers() {
     map.setPaintProperty(`heat-${id}`, "heatmap-intensity", ["interpolate", ["linear"], ["zoom"], 10, state.heatIntensity * 0.65, 15, state.heatIntensity * 1.35]);
   });
   const schoolFilter = state.selectedSchool === "all" ? null : ["==", ["get", "school_id"], state.selectedSchool];
+  ["renabap-fill", "renabap-line"].forEach((id) => {
+    map.setLayoutProperty(id, "visibility", state.visible.renabap ? "visible" : "none");
+  });
   map.setFilter("student-points", schoolFilter);
   map.setFilter("school-points", schoolFilter);
   map.getSource("rings").setData(buildRingFeatures());
@@ -372,6 +406,7 @@ function setupControls() {
     ["toggleGaleano", "galeano"],
     ["togglePizarnik", "pizarnik"],
     ["toggleRings", "rings"],
+    ["toggleRenabap", "renabap"],
   ].forEach(([id, key]) => {
     document.getElementById(id).addEventListener("change", (event) => {
       state.visible[key] = event.target.checked;
@@ -392,12 +427,13 @@ function fitToData() {
 }
 
 async function init() {
-  const [matricula, schools, limit] = await Promise.all([
+  const [matricula, schools, limit, renabap] = await Promise.all([
     fetchJson("../isocronas_escolares/data/matricula.geojson"),
     fetchJson("../isocronas_escolares/data/escuelas.geojson"),
     fetchJson("../isocronas_escolares/data/limite_partido.geojson"),
+    fetchOptionalJson("../isocronas_escolares/data/renabap.geojson"),
   ]);
-  state.data = { matricula, schools, limit };
+  state.data = { matricula, schools, limit, renabap };
   addSources();
   addLayers();
   setupControls();

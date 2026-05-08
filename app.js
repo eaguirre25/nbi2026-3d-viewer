@@ -754,7 +754,6 @@ function updateEnrollmentDistributions() {
   updateSchoolDistribution("Walsh", "walsh");
   updateSchoolDistribution("Galeano", "galeano");
   updateSchoolDistribution("Pizarnik", "pizarnik");
-  updateRenabapEnrollmentSummary();
 }
 
 function updateRenabapEnrollmentSummary() {
@@ -1494,12 +1493,10 @@ async function loadData() {
   setLoadingProgress(50);
   await loadPoliticalBoundaries();
   setLoadingProgress(56);
-  await loadRenabap();
-  setLoadingProgress(64);
   await loadEnrollment();
-  setLoadingProgress(70);
+  setLoadingProgress(66);
   await loadGaleanoEnrollment();
-  setLoadingProgress(76);
+  setLoadingProgress(74);
   await loadPizarnikEnrollment();
   setLoadingProgress(82);
   updateEnrollmentDistributions();
@@ -1543,18 +1540,6 @@ document.getElementById("radioMode").addEventListener("click", () => setMode("ra
 document.getElementById("enrollmentMode").addEventListener("click", (event) => {
   state.enrollmentVisible = !state.enrollmentVisible;
   event.currentTarget.setAttribute("aria-pressed", String(state.enrollmentVisible));
-  refreshAllStyles();
-});
-
-document.getElementById("labelsMode").addEventListener("click", (event) => {
-  state.labelsVisible = !state.labelsVisible;
-  event.currentTarget.setAttribute("aria-pressed", String(state.labelsVisible));
-  refreshAllStyles();
-});
-
-document.getElementById("renabapMode").addEventListener("click", (event) => {
-  state.renabapVisible = !state.renabapVisible;
-  event.currentTarget.setAttribute("aria-pressed", String(state.renabapVisible));
   refreshAllStyles();
 });
 
