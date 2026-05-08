@@ -850,17 +850,20 @@ function updateWalkAnimation() {
   if (walkAnimation.requestId) return;
   walkAnimation.startedAt = performance.now();
   const tick = (now) => {
-    const elapsed = ((now - walkAnimation.startedAt) / 6200) % 1;
+    const elapsed = (now - walkAnimation.startedAt) / 46000;
     const features = [];
     state.data.walkRoutes.features.forEach((route, index) => {
       if (state.selectedSchool !== "all" && route.properties.school_id !== state.selectedSchool) return;
-      const phase = (elapsed + (index % 9) / 9) % 1;
+      const offset = (index % 17) / 17;
+      const cycle = (elapsed + offset) % 1;
+      const fraction = Math.min(1, cycle / 0.82);
       features.push({
         type: "Feature",
-        geometry: { type: "Point", coordinates: pointAtFraction(route.geometry.coordinates, phase) },
+        geometry: { type: "Point", coordinates: pointAtFraction(route.geometry.coordinates, fraction) },
         properties: {
           color: route.properties.color,
           school_id: route.properties.school_id,
+          progress: fraction,
         },
       });
     });
