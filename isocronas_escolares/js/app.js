@@ -552,6 +552,15 @@ function schoolTotals() {
   return totals;
 }
 
+function routeTotals() {
+  const totals = {};
+  state.data.walkRoutes.features.forEach((feature) => {
+    const id = feature.properties.school_id;
+    totals[id] = (totals[id] || 0) + 1;
+  });
+  return totals;
+}
+
 function analysisForSchool(school) {
   const totals = schoolTotals();
   const source = state.mode === "bus" ? state.data.busIso : state.data.isochrones;
@@ -849,23 +858,31 @@ function updateWalkAnimation() {
   }
   if (walkAnimation.requestId) return;
   walkAnimation.startedAt = performance.now();
+  const enrollmentTotals = schoolTotals();
+  const walkRouteTotals = routeTotals();
   const tick = (now) => {
     const elapsed = (now - walkAnimation.startedAt) / 46000;
     const features = [];
     state.data.walkRoutes.features.forEach((route, index) => {
       if (state.selectedSchool !== "all" && route.properties.school_id !== state.selectedSchool) return;
+      const schoolId = route.properties.school_id;
+      const schoolEnrollment = enrollmentTotals[schoolId] || 0;
+      const schoolRoutes = Math.max(1, walkRouteTotals[schoolId] || 1);
+      const particles = Math.max(3, Math.min(8, Math.ceil(schoolEnrollment / schoolRoutes / 2)));
       const offset = (index % 17) / 17;
-      const cycle = (elapsed + offset) % 1;
-      const fraction = Math.min(1, cycle / 0.82);
-      features.push({
-        type: "Feature",
-        geometry: { type: "Point", coordinates: pointAtFraction(route.geometry.coordinates, fraction) },
-        properties: {
-          color: route.properties.color,
-          school_id: route.properties.school_id,
-          progress: fraction,
-        },
-      });
+      for (let particle = 0; particle < particles; particle += 1) {
+        const cycle = (elapsed + offset + (particle / particles) * 0.82) % 1;
+        const fraction = Math.min(1, cycle / 0.82);
+        features.push({
+          type: "Feature",
+          geometry: { type: "Point", coordinates: pointAtFraction(route.geometry.coordinates, fraction) },
+          properties: {
+            color: route.properties.color,
+            school_id: route.properties.school_id,
+            progress: fraction,
+          },
+        });
+      }
     });
     const source = map.getSource("walk-particles");
     if (source) source.setData(featureCollection(features));
