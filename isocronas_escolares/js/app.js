@@ -451,6 +451,7 @@ function addLayers() {
       "circle-opacity": 0.78,
     },
   });
+  map.moveLayer("walk-particles");
 
   map.addLayer({
     id: "limit-line",
