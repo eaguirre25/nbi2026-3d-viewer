@@ -16,6 +16,7 @@ const state = {
   heatIntensity: 1.05,
   visible: { walsh: true, galeano: true, pizarnik: true, rings: true, renabap: true },
   data: {},
+  radarAnimationFrame: null,
 };
 
 const map = new maplibregl.Map({
@@ -78,6 +79,7 @@ function addSources() {
   map.addSource("limit", { type: "geojson", data: state.data.limit });
   map.addSource("renabap", { type: "geojson", data: state.data.renabap });
   map.addSource("rings", { type: "geojson", data: featureCollection([]) });
+  map.addSource("radar-waves", { type: "geojson", data: featureCollection([]) });
 }
 
 function heatColorExpression(id) {
@@ -162,6 +164,25 @@ function addLayers() {
       "line-width": 1,
       "line-opacity": 0.6,
       "line-dasharray": [2, 2],
+    },
+  });
+  map.addLayer({
+    id: "radar-wave-fill",
+    type: "fill",
+    source: "radar-waves",
+    paint: {
+      "fill-color": ["get", "color"],
+      "fill-opacity": ["*", ["get", "opacity"], 0.08],
+    },
+  });
+  map.addLayer({
+    id: "radar-wave-line",
+    type: "line",
+    source: "radar-waves",
+    paint: {
+      "line-color": ["get", "color"],
+      "line-width": ["interpolate", ["linear"], ["get", "opacity"], 0, 0.4, 1, 2.8],
+      "line-opacity": ["get", "opacity"],
     },
   });
 
@@ -271,6 +292,30 @@ function buildRingFeatures() {
   return featureCollection(features);
 }
 
+function buildRadarWaveFeatures(timestamp = performance.now()) {
+  if (!state.visible.rings) return featureCollection([]);
+  const features = [];
+  const cycle = 2600;
+  const phases = [0, 0.33, 0.66];
+  schoolFeatures().forEach((school) => {
+    const id = school.properties.school_id;
+    if (!state.visible[id]) return;
+    phases.forEach((phase) => {
+      const progress = ((timestamp / cycle + phase) % 1);
+      const meters = Math.max(80, state.maxRadius * progress);
+      const wave = turf.circle(school.geometry.coordinates, meters / 1000, { steps: 128, units: "kilometers" });
+      wave.properties = {
+        school_id: id,
+        meters,
+        color: SCHOOL_COLORS[id],
+        opacity: Math.max(0, 0.9 * (1 - progress)),
+      };
+      features.push(wave);
+    });
+  });
+  return featureCollection(features);
+}
+
 function reachedStudentFeatures() {
   const reached = [];
   schoolFeatures().forEach((school) => {
@@ -307,8 +352,19 @@ function updateLayers() {
   map.setFilter("student-points", schoolFilter);
   map.setFilter("school-points", schoolFilter);
   map.getSource("rings").setData(buildRingFeatures());
+  map.getSource("radar-waves").setData(buildRadarWaveFeatures());
   map.getSource("reached-students").setData(reachedStudentFeatures());
   updateRadar();
+}
+
+function startRadarWaveAnimation() {
+  const tick = (timestamp) => {
+    if (map.getSource("radar-waves")) {
+      map.getSource("radar-waves").setData(buildRadarWaveFeatures(timestamp));
+    }
+    state.radarAnimationFrame = requestAnimationFrame(tick);
+  };
+  if (!state.radarAnimationFrame) state.radarAnimationFrame = requestAnimationFrame(tick);
 }
 
 function drawRadarForSchool(school) {
@@ -354,14 +410,16 @@ function updateRadar() {
   const schools = schoolFeatures();
   const school = schools[0];
   if (!school) return;
+  const panel = document.querySelector(".radar-panel");
   document.getElementById("radarSubtitle").textContent = state.selectedSchool === "all" ? "Walsh, Galeano y Pizarnik" : school.properties.school_name;
   if (state.selectedSchool === "all") {
+    panel.classList.add("overview");
     document.getElementById("radarSvg").innerHTML = "";
     document.getElementById("radialBars").innerHTML = schools
       .map((item) => {
         const { bins, total, color } = binsForSchool(item);
         const inside = bins.reduce((sum, bin) => sum + bin.count, 0);
-        return `<div class="bar-row">
+        return `<div class="bar-row summary-row">
           <span>${item.properties.school_name.replace("Escuela ", "")}</span>
           <i class="bar-track"><b class="bar-fill" style="width:${(inside / Math.max(1, total)) * 100}%; background:${color}"></b></i>
           <strong>${pct((inside / Math.max(1, total)) * 100)}</strong>
@@ -370,6 +428,7 @@ function updateRadar() {
       .join("");
     return;
   }
+  panel.classList.remove("overview");
   drawRadarForSchool(school);
 }
 
@@ -439,6 +498,7 @@ async function init() {
   setupControls();
   updateRadiusReadout();
   updateLayers();
+  startRadarWaveAnimation();
   fitToData();
 }
 
