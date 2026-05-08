@@ -62,7 +62,7 @@ const map = new maplibregl.Map({
   pitch: 0,
 });
 
-map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
+map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "bottom-right");
 map.addControl(new maplibregl.ScaleControl({ maxWidth: 180, unit: "metric" }), "bottom-left");
 
 async function fetchJson(path, optional = false) {
@@ -754,45 +754,6 @@ function setupControls() {
   });
 }
 
-function setupDraggablePanels() {
-  const interactiveSelector = "a, button, input, select, option, table, th, td, .maplibregl-ctrl";
-  document.querySelectorAll(".draggable-panel").forEach((panel) => {
-    let drag = null;
-    panel.addEventListener("pointerdown", (event) => {
-      if (event.button !== 0 || event.target.closest(interactiveSelector)) return;
-      const rect = panel.getBoundingClientRect();
-      drag = {
-        offsetX: event.clientX - rect.left,
-        offsetY: event.clientY - rect.top,
-      };
-      panel.classList.add("is-dragging");
-      panel.setPointerCapture(event.pointerId);
-      event.preventDefault();
-    });
-    panel.addEventListener("pointermove", (event) => {
-      if (!drag) return;
-      const width = panel.offsetWidth;
-      const height = panel.offsetHeight;
-      const left = Math.max(8, Math.min(window.innerWidth - width - 8, event.clientX - drag.offsetX));
-      const top = Math.max(8, Math.min(window.innerHeight - height - 8, event.clientY - drag.offsetY));
-      panel.style.left = `${left}px`;
-      panel.style.top = `${top}px`;
-      panel.style.right = "auto";
-      panel.style.bottom = "auto";
-    });
-    panel.addEventListener("pointerup", (event) => {
-      if (!drag) return;
-      drag = null;
-      panel.classList.remove("is-dragging");
-      panel.releasePointerCapture(event.pointerId);
-    });
-    panel.addEventListener("pointercancel", () => {
-      drag = null;
-      panel.classList.remove("is-dragging");
-    });
-  });
-}
-
 function updateTimeLegend(times, mode) {
   document.getElementById("legendTimeTitle").textContent = "Peatonal";
   if (mode !== "walk") return;
@@ -934,7 +895,6 @@ async function init() {
   addSources();
   addLayers();
   setupControls();
-  setupDraggablePanels();
   updateTimeLegend([5, 10, 15, 20], "walk");
   setupPopups();
   updateFilters();
@@ -945,7 +905,7 @@ async function init() {
         [bbox[0], bbox[1]],
         [bbox[2], bbox[3]],
       ],
-      { padding: { top: 120, right: 80, bottom: 80, left: 340 }, duration: 0 },
+      { padding: { top: 42, right: 610, bottom: 72, left: 630 }, duration: 0 },
     );
   }
 }
