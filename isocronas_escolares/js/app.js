@@ -680,11 +680,11 @@ function setupPopups() {
     new maplibregl.Popup()
       .setLngLat(event.features[0].geometry.coordinates)
       .setHTML(
-        popupHtml("Parada agrupadora", [
+        popupHtml(p.stop_role === "school_near" ? "Parada cercana a escuela" : "Parada agrupadora", [
           ["Escuela", p.school_name],
           ["Línea", p.linea_label],
           ["Estudiantes reunidos", fmt(p.students)],
-          ["Caminata media", `${fmt(p.walk_avg_m)} m`],
+          [p.stop_role === "school_near" ? "Distancia a escuela" : "Caminata media", `${fmt(p.walk_avg_m)} m`],
           ["Criterio", p.source],
         ]),
       )
