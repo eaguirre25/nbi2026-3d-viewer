@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Condiciones socioeconómicas de escuelas secundarias seleccionadas</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/cesium@1.120.0/Build/Cesium/Widgets/widgets.css"
+      rel="stylesheet"
+    />
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <link rel="stylesheet" href="styles.css?v=20260507-1120" />
+  </head>
+  <body>
+    <main id="cesiumContainer" aria-label="Visor 3D de condiciones socioeconómicas"></main>
+    <div id="loading" class="loading">
+      <strong id="loadingPercent">0%</strong>
+      <span>espera, ahi empieza el chou</span>
+      <i><b id="loadingBar"></b></i>
+    </div>
+
+    <aside class="panel panel-left">
+      <header>
+        <p class="eyebrow">General San Martin</p>
+        <h1>Condiciones socioeconómicas de las escuelas secundarias seleccionadas</h1>
+        <p class="subtitle">Escala continua calibrada por percentiles de NBI.</p>
+      </header>
+
+      <section class="metric-grid" aria-label="Resumen">
+        <div>
+          <span>Total radios</span>
+          <strong id="totalFeatures">524</strong>
+        </div>
+        <div>
+          <span>NBI max.</span>
+          <strong id="maxNbi">--</strong>
+        </div>
+        <div>
+          <span>Hogares NBI</span>
+          <strong id="totalNbiHomes">--</strong>
+        </div>
+        <div>
+          <span>Poblacion</span>
+          <strong id="totalPopulation">--</strong>
+        </div>
+      </section>
+
+      <section class="legend" aria-label="Referencias">
+        <div class="gradient-key" aria-hidden="true"></div>
+        <div class="gradient-labels">
+          <span>menor</span>
+          <span>medio</span>
+          <span>mayor</span>
+        </div>
+        <div class="legend-head">
+          <span>Rango NBI</span>
+          <span>Radios</span>
+          <span>% Escuela Walsh</span>
+          <span>% Escuela Galeano</span>
+          <span>% Escuela Pizarnik</span>
+        </div>
+        <button class="legend-row active" data-class="1" type="button" aria-pressed="true">
+          <span class="swatch q1"></span>
+          <span>0 - 4</span>
+          <strong id="count-1">0</strong>
+          <em id="walsh-1">0%</em>
+          <em id="galeano-1">0%</em>
+          <em id="pizarnik-1">0%</em>
+        </button>
+        <button class="legend-row active" data-class="2" type="button" aria-pressed="true">
+          <span class="swatch q2"></span>
+          <span>4 - 8,8</span>
+          <strong id="count-2">0</strong>
+          <em id="walsh-2">0%</em>
+          <em id="galeano-2">0%</em>
+          <em id="pizarnik-2">0%</em>
+        </button>
+        <button class="legend-row active" data-class="3" type="button" aria-pressed="true">
+          <span class="swatch q3"></span>
+          <span>8,8 - 15,9</span>
+          <strong id="count-3">0</strong>
+          <em id="walsh-3">0%</em>
+          <em id="galeano-3">0%</em>
+          <em id="pizarnik-3">0%</em>
+        </button>
+        <button class="legend-row active" data-class="4" type="button" aria-pressed="true">
+          <span class="swatch q4"></span>
+          <span>15,9 - 28,6</span>
+          <strong id="count-4">0</strong>
+          <em id="walsh-4">0%</em>
+          <em id="galeano-4">0%</em>
+          <em id="pizarnik-4">0%</em>
+        </button>
+        <button class="legend-row active" data-class="5" type="button" aria-pressed="true">
+          <span class="swatch q5"></span>
+          <span>28,6 - 54,5</span>
+          <strong id="count-5">0</strong>
+          <em id="walsh-5">0%</em>
+          <em id="galeano-5">0%</em>
+          <em id="pizarnik-5">0%</em>
+        </button>
+        <div class="renabap-summary" aria-label="Estudiantes en villas y asentamientos RENABAP">
+          <span>En villas/asentamientos</span>
+          <strong id="walsh-renabap">Walsh 0%</strong>
+          <strong id="galeano-renabap">Galeano 0%</strong>
+          <strong id="pizarnik-renabap">Pizarnik 0%</strong>
+        </div>
+      </section>
+
+      <section class="controls" aria-label="Controles">
+        <label>
+          Altura
+          <input id="heightScale" type="range" min="0.4" max="3.4" step="0.1" value="1.5" />
+        </label>
+        <label>
+          Opacidad
+          <input id="opacityScale" type="range" min="0.35" max="1" step="0.05" value="1" />
+        </label>
+        <div class="buttons">
+          <button id="resetView" type="button">Centrar</button>
+          <button id="tiltView" type="button">Vista oblicua</button>
+        </div>
+        <div class="buttons">
+          <button id="surfaceMode" type="button" aria-pressed="true">Superficie</button>
+          <button id="radioMode" type="button" aria-pressed="false">Radios</button>
+        </div>
+        <div class="buttons">
+          <button id="enrollmentMode" type="button" aria-pressed="true">Matrícula</button>
+          <button id="labelsMode" type="button" aria-pressed="true">Etiquetas</button>
+        </div>
+        <div class="buttons">
+          <button id="renabapMode" type="button" aria-pressed="true">RENABAP</button>
+          <button id="isochronesLink" type="button">Isócronas</button>
+        </div>
+        <div class="school-key">
+          <span><i class="dot walsh-dot"></i>Walsh</span>
+          <span><i class="dot galeano-dot"></i>Galeano</span>
+          <span><i class="dot pizarnik-dot"></i>Pizarnik</span>
+          <span><i class="renabap-key"></i>RENABAP</span>
+        </div>
+      </section>
+    </aside>
+
+    <div id="hoverTip" class="hover-tip" hidden></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.120.0/Build/Cesium/Cesium.js"></script>
+    <script src="app.js?v=20260507-1120"></script>
+  </body>
+</html>

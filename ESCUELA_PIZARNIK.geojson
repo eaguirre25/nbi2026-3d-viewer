@@ -1,0 +1,25 @@
+{
+  "type": "FeatureCollection",
+  "name": "ESCUELA PIZARNIK",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -58.53686037402286,
+          -34.55904975447658
+        ]
+      }
+    }
+  ]
+}

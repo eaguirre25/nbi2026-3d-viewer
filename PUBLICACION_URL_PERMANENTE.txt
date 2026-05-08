@@ -1,0 +1,15 @@
+El sitio está listo para publicar como web permanente.
+
+URL local actual:
+http://127.0.0.1:8765/
+
+Visor de isócronas local:
+http://127.0.0.1:8765/isocronas_escolares/
+
+Para URL permanente se requiere un hosting autenticado:
+- GitHub Pages
+- Netlify
+- Vercel
+- Cloudflare Pages
+
+No hay credenciales ni remoto Git configurado en esta máquina para publicarlo automáticamente.

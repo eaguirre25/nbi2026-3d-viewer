@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="132" viewBox="0 0 120 132">
+  <defs>
+    <filter id="shadow" x="-35%" y="-25%" width="170%" height="170%">
+      <feDropShadow dx="0" dy="7" stdDeviation="6" flood-color="#000000" flood-opacity=".68"/>
+    </filter>
+    <linearGradient id="shine" x1="28" y1="12" x2="92" y2="102" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".58" stop-color="#f2f4ef"/>
+      <stop offset="1" stop-color="#cfd6d0"/>
+    </linearGradient>
+  </defs>
+  <g filter="url(#shadow)">
+    <path d="M60 128 45 96h30l-15 32Z" fill="#ffffff"/>
+    <circle cx="60" cy="54" r="50" fill="#ffffff"/>
+    <circle cx="60" cy="54" r="43" fill="#071014"/>
+    <circle cx="60" cy="54" r="35" fill="url(#shine)"/>
+    <text x="60" y="73" text-anchor="middle"
+      font-family="Georgia, 'Times New Roman', serif" font-size="58" font-weight="900"
+      fill="#071014">W</text>
+    <circle cx="60" cy="54" r="50" fill="none" stroke="#061513" stroke-width="4"/>
+  </g>
+</svg>

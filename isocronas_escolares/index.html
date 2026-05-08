@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Isócronas escolares · San Martín</title>
+    <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/styles.css?v=20260508-0935" />
+  </head>
+  <body>
+    <main id="map" aria-label="Mapa de isócronas escolares de San Martín"></main>
+
+    <section class="panel hero draggable-panel" aria-label="Presentación">
+      <p class="eyebrow">General San Martín</p>
+      <h1>Isócronas escolares · San Martín</h1>
+      <p>Accesibilidad peatonal, matrícula y desigualdad</p>
+      <a class="back-link" href="../">Volver al mapa 3D</a>
+    </section>
+
+    <aside class="panel controls draggable-panel" aria-label="Controles del mapa">
+      <div class="mode-toggle" role="group" aria-label="Modo de movilidad">
+        <button id="modeWalk" type="button" aria-pressed="true">Peatonal</button>
+        <button id="modeBus" type="button" aria-pressed="false">Transp. colectivo</button>
+      </div>
+      <label>
+        Escuela
+        <select id="schoolSelect">
+          <option value="all">Todas las escuelas</option>
+        </select>
+      </label>
+      <label>
+        Tiempo máximo
+        <select id="timeSelect">
+          <option value="20">20 minutos</option>
+          <option value="15">15 minutos</option>
+          <option value="10">10 minutos</option>
+          <option value="5">5 minutos</option>
+        </select>
+      </label>
+      <div class="toggle-grid">
+        <label><input id="toggleMatricula" type="checkbox" checked /> Matrícula</label>
+        <label><input id="toggleNbi" type="checkbox" checked /> NBI</label>
+        <label><input id="toggleRenabap" type="checkbox" checked /> RENABAP</label>
+        <label><input id="toggleLimit" type="checkbox" checked /> Límite</label>
+        <label><input id="toggleBusRoutes" type="checkbox" checked /> Caudal colectivo</label>
+        <label><input id="toggleTransactions" type="checkbox" checked /> Transacciones</label>
+      </div>
+      <div class="bus-params" id="busParams" hidden>
+        <strong>Supuestos colectivo</strong>
+        <span>Acceso a parada: 500 m</span>
+        <span>Parada próxima a escuela: 500 m</span>
+        <span>Distancia mínima de viaje: 1.200 m</span>
+      </div>
+      <label>
+        Opacidad isócronas
+        <input id="isoOpacity" type="range" min="0.15" max="0.75" step="0.05" value="0.42" />
+      </label>
+      <label>
+        Opacidad NBI
+        <input id="nbiOpacity" type="range" min="0" max="0.55" step="0.05" value="0.22" />
+      </label>
+    </aside>
+
+    <aside class="panel legend draggable-panel" aria-label="Leyenda">
+      <h2>Referencias</h2>
+      <section class="legend-section">
+        <h3>Base común</h3>
+        <div><span class="symbol school"></span>Escuela</div>
+        <div><span class="symbol enrollment"></span>Matrícula</div>
+        <div><span class="line boundary"></span>Límite del partido</div>
+        <div><span class="swatch nbi"></span>NBI</div>
+        <div><span class="swatch renabap"></span>RENABAP</div>
+      </section>
+      <section class="legend-section">
+        <h3 id="legendTimeTitle">Peatonal</h3>
+        <div><span class="line walk-school"></span>Movilidad peatonal</div>
+        <div><span class="swatch t5"></span><span id="legendT1">5 minutos</span></div>
+        <div><span class="swatch t10"></span><span id="legendT2">10 minutos</span></div>
+        <div><span class="swatch t15"></span><span id="legendT3">15 minutos</span></div>
+        <div><span class="swatch t20"></span><span id="legendT4">20 minutos</span></div>
+      </section>
+      <section class="legend-section">
+        <h3>Transporte colectivo</h3>
+        <div><span class="line walk"></span>Caminata a parada</div>
+        <div><span class="line bus"></span>Flujo a escuela</div>
+        <div><span class="symbol stop"></span>Parada agrupadora</div>
+        <div><span class="symbol transactions"></span>Transacciones SUBE</div>
+      </section>
+    </aside>
+
+    <aside class="panel analysis draggable-panel" aria-label="Lectura">
+      <h2>Lectura</h2>
+      <div class="summary" id="summaryText">Cargando indicadores...</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Escuela</th>
+            <th>Tiempo</th>
+            <th>Radios</th>
+            <th>NBI prom.</th>
+            <th>Matrícula</th>
+            <th>%</th>
+          </tr>
+        </thead>
+        <tbody id="analysisRows"></tbody>
+      </table>
+      <p class="note">
+        Lectura exploratoria. Los valores dependen de la calidad de las capas, de la georreferenciación disponible y del método de generación de isócronas.
+      </p>
+    </aside>
+
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+    <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
+    <script src="js/app.js?v=20260508-0935"></script>
+  </body>
+</html>
