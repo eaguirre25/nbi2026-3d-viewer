@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>General San Martín 3D</title>
+    <link href="https://cdn.jsdelivr.net/npm/cesium@1.120.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+    <style>
+      html,
+      body,
+      #cesiumContainer {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: #0b0f14;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .badge {
+        position: absolute;
+        left: 18px;
+        top: 18px;
+        z-index: 2;
+        max-width: 360px;
+        padding: 14px 16px;
+        color: #f8fafc;
+        background: rgba(9, 14, 20, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 18px;
+        backdrop-filter: blur(14px);
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.34);
+      }
+
+      .badge h1 {
+        margin: 0 0 4px;
+        font-size: 18px;
+        line-height: 1.15;
+        font-weight: 750;
+      }
+
+      .badge p {
+        margin: 0;
+        color: rgba(248, 250, 252, 0.78);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .status {
+        position: absolute;
+        left: 18px;
+        bottom: 18px;
+        z-index: 2;
+        padding: 10px 12px;
+        color: rgba(248, 250, 252, 0.86);
+        background: rgba(9, 14, 20, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        font-size: 12px;
+        backdrop-filter: blur(12px);
+      }
+
+      .controls {
+        position: absolute;
+        right: 18px;
+        top: 18px;
+        z-index: 2;
+        display: flex;
+        gap: 8px;
+      }
+
+      button {
+        appearance: none;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 999px;
+        color: #f8fafc;
+        background: rgba(9, 14, 20, 0.72);
+        padding: 10px 12px;
+        font: inherit;
+        font-size: 12px;
+        cursor: pointer;
+        backdrop-filter: blur(12px);
+      }
+
+      button:hover {
+        background: rgba(33, 48, 66, 0.78);
+      }
+
+      .cesium-viewer-bottom,
+      .cesium-credit-textContainer,
+      .cesium-credit-logoContainer {
+        display: none !important;
+      }
+
+      @media (max-width: 700px) {
+        .badge {
+          left: 12px;
+          right: 12px;
+          top: 12px;
+          max-width: none;
+        }
+
+        .controls {
+          right: 12px;
+          top: auto;
+          bottom: 58px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="cesiumContainer" aria-label="Mapa 3D de General San Martín"></main>
+
+    <section class="badge" aria-label="Título">
+      <h1>General San Martín 3D</h1>
+      <p>Vista simple del partido, con imagen satelital, límite territorial y volúmenes urbanos de OpenStreetMap cuando están disponibles.</p>
+    </section>
+
+    <nav class="controls" aria-label="Controles de vista">
+      <button id="view3d" type="button">Vista 3D</button>
+      <button id="viewTop" type="button">Cenital</button>
+    </nav>
+
+    <div id="status" class="status">Cargando mapa 3D...</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.120.0/Build/Cesium/Cesium.js"></script>
+    <script>
+      Cesium.Ion.defaultAccessToken = "";
+
+      const bounds = {
+        west: -58.637,
+        south: -34.626,
+        east: -58.478,
+        north: -34.498,
+      };
+
+      const center = {
+        lon: (bounds.west + bounds.east) / 2,
+        lat: (bounds.south + bounds.north) / 2,
+      };
+
+      const approximateBoundary = [
+        [-58.612, -34.506],
+        [-58.488, -34.519],
+        [-58.482, -34.590],
+        [-58.523, -34.614],
+        [-58.608, -34.619],
+        [-58.635, -34.574],
+        [-58.612, -34.506],
+      ];
+
+      const status = document.getElementById("status");
+
+      const viewer = new Cesium.Viewer("cesiumContainer", {
+        animation: false,
+        timeline: false,
+        fullscreenButton: false,
+        geocoder: false,
+        homeButton: false,
+        sceneModePicker: false,
+        baseLayerPicker: false,
+        navigationHelpButton: false,
+        infoBox: false,
+        selectionIndicator: false,
+        terrainProvider: new Cesium.EllipsoidTerrainProvider(),
+        imageryProvider: false,
+      });
+
+      const satelliteProvider = new Cesium.UrlTemplateImageryProvider({
+        url: "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        credit: "Esri World Imagery",
+        maximumLevel: 19,
+      });
+
+      const satelliteLayer = viewer.imageryLayers.addImageryProvider(satelliteProvider);
+      satelliteLayer.brightness = 0.84;
+      satelliteLayer.contrast = 1.1;
+      satelliteLayer.saturation = 0.92;
+
+      viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#0b0f14");
+      viewer.scene.globe.depthTestAgainstTerrain = false;
+      viewer.scene.screenSpaceCameraController.minimumZoomDistance = 800;
+      viewer.scene.screenSpaceCameraController.maximumZoomDistance = 45000;
+      viewer.scene.screenSpaceCameraController.enableRotate = true;
+      viewer.scene.screenSpaceCameraController.enableTilt = true;
+      viewer.scene.fog.enabled = true;
+      viewer.scene.fog.density = 0.00014;
+
+      function ringToCartesian(ring, height = 0) {
+        return ring.map(([lon, lat]) => Cesium.Cartesian3.fromDegrees(lon, lat, height));
+      }
+
+      function addBoundary(ring) {
+        viewer.entities.add({
+          name: "General San Martín",
+          polygon: {
+            hierarchy: new Cesium.PolygonHierarchy(ringToCartesian(ring)),
+            material: Cesium.Color.fromCssColorString("#55d6ff").withAlpha(0.12),
+            outline: false,
+          },
+        });
+
+        viewer.entities.add({
+          name: "Límite de General San Martín",
+          polyline: {
+            positions: ringToCartesian(ring, 80),
+            width: 4,
+            material: new Cesium.PolylineOutlineMaterialProperty({
+              color: Cesium.Color.fromCssColorString("#e8f7ff").withAlpha(0.94),
+              outlineColor: Cesium.Color.fromCssColorString("#0b0f14").withAlpha(0.9),
+              outlineWidth: 2,
+            }),
+            clampToGround: false,
+          },
+        });
+      }
+
+      function getBuildingHeight(tags = {}, index = 0) {
+        const rawHeight = String(tags.height || "").replace(",", ".").replace(/[^0-9.]/g, "");
+        const height = Number(rawHeight);
+        if (Number.isFinite(height) && height > 1) return Math.min(height, 90);
+
+        const levels = Number(String(tags["building:levels"] || "").replace(",", "."));
+        if (Number.isFinite(levels) && levels > 0) return Math.min(levels * 3.2, 80);
+
+        return 7 + ((index * 17) % 24);
+      }
+
+      function addBuilding(way, index) {
+        const geom = way.geometry || [];
+        if (geom.length < 4) return false;
+
+        const ring = geom.map((point) => [point.lon, point.lat]);
+        const first = ring[0];
+        const last = ring[ring.length - 1];
+        if (first[0] !== last[0] || first[1] !== last[1]) ring.push(first);
+
+        const height = getBuildingHeight(way.tags, index);
+        const tone = 0.62 + ((index * 13) % 23) / 100;
+
+        viewer.entities.add({
+          name: way.tags?.name || "Edificio OSM",
+          polygon: {
+            hierarchy: new Cesium.PolygonHierarchy(ringToCartesian(ring)),
+            height: 0,
+            extrudedHeight: height,
+            material: new Cesium.Color(tone, tone + 0.025, Math.min(tone + 0.06, 0.88), 0.82),
+            outline: true,
+            outlineColor: Cesium.Color.fromCssColorString("#0b0f14").withAlpha(0.22),
+            outlineWidth: 0.5,
+          },
+        });
+
+        return true;
+      }
+
+      function makeFallbackBlocks() {
+        let count = 0;
+        const cols = 18;
+        const rows = 12;
+        const dx = (bounds.east - bounds.west) / cols;
+        const dy = (bounds.north - bounds.south) / rows;
+
+        for (let x = 1; x < cols - 1; x += 1) {
+          for (let y = 1; y < rows - 1; y += 1) {
+            if ((x + y) % 3 === 0) continue;
+            const west = bounds.west + x * dx + dx * 0.18;
+            const east = west + dx * 0.42;
+            const south = bounds.south + y * dy + dy * 0.2;
+            const north = south + dy * 0.36;
+            const ring = [
+              [west, south],
+              [east, south],
+              [east, north],
+              [west, north],
+              [west, south],
+            ];
+            viewer.entities.add({
+              name: "Volumen urbano de referencia",
+              polygon: {
+                hierarchy: new Cesium.PolygonHierarchy(ringToCartesian(ring)),
+                height: 0,
+                extrudedHeight: 8 + ((x * y) % 32),
+                material: Cesium.Color.fromCssColorString("#cfd8e3").withAlpha(0.72),
+                outline: true,
+                outlineColor: Cesium.Color.fromCssColorString("#101820").withAlpha(0.22),
+                outlineWidth: 0.4,
+              },
+            });
+            count += 1;
+          }
+        }
+        return count;
+      }
+
+      async function loadBoundaryFromNominatim() {
+        try {
+          const url = "https://nominatim.openstreetmap.org/search.php?q=Partido%20de%20General%20San%20Mart%C3%ADn%2C%20Buenos%20Aires%2C%20Argentina&polygon_geojson=1&format=jsonv2&limit=1";
+          const response = await fetch(url);
+          if (!response.ok) throw new Error("Nominatim no respondió");
+          const results = await response.json();
+          const geometry = results?.[0]?.geojson;
+          if (!geometry) throw new Error("Sin geometría");
+
+          if (geometry.type === "Polygon") {
+            return geometry.coordinates[0];
+          }
+          if (geometry.type === "MultiPolygon") {
+            return geometry.coordinates[0][0];
+          }
+        } catch (error) {
+          console.warn(error);
+        }
+        return approximateBoundary;
+      }
+
+      async function loadBuildings() {
+        const query = `
+          [out:json][timeout:25];
+          (
+            way["building"](${bounds.south},${bounds.west},${bounds.north},${bounds.east});
+          );
+          out tags geom 2600;
+        `;
+        const url = "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query);
+
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error("Overpass no respondió");
+          const data = await response.json();
+          let count = 0;
+          for (const element of data.elements || []) {
+            if (element.type === "way" && addBuilding(element, count)) count += 1;
+          }
+          if (count === 0) throw new Error("No llegaron edificios");
+          status.textContent = `Mapa listo · ${count.toLocaleString("es-AR")} volúmenes OSM`;
+        } catch (error) {
+          console.warn(error);
+          const count = makeFallbackBlocks();
+          status.textContent = `Mapa listo · ${count.toLocaleString("es-AR")} volúmenes de referencia`;
+        }
+      }
+
+      function fly3d(duration = 1.8) {
+        viewer.camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(center.lon, center.lat - 0.018, 10500),
+          orientation: {
+            heading: Cesium.Math.toRadians(328),
+            pitch: Cesium.Math.toRadians(-46),
+            roll: 0,
+          },
+          duration,
+        });
+      }
+
+      function flyTop() {
+        viewer.camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(center.lon, center.lat, 18500),
+          orientation: {
+            heading: 0,
+            pitch: Cesium.Math.toRadians(-90),
+            roll: 0,
+          },
+          duration: 1.2,
+        });
+      }
+
+      document.getElementById("view3d").addEventListener("click", () => fly3d(1.1));
+      document.getElementById("viewTop").addEventListener("click", flyTop);
+
+      async function init() {
+        addBoundary(await loadBoundaryFromNominatim());
+        fly3d(0);
+        await loadBuildings();
+      }
+
+      init();
+    </script>
+  </body>
+</html>
