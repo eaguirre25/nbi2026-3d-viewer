@@ -592,28 +592,82 @@ function analysisForSchool(school) {
 }
 
 function updateAnalysis() {
-  const schools =
-    state.selectedSchool === "all"
-      ? state.data.schools.features
-      : state.data.schools.features.filter((feature) => feature.properties.school_id === state.selectedSchool);
-  const rows = schools.flatMap(analysisForSchool);
-  document.getElementById("analysisRows").innerHTML = rows
-    .map(
-      (row) => `<tr>
-        <td>${row.school.replace("Escuela ", "")}</td>
-        <td>${row.minutes} min</td>
-        <td>${fmt(row.radios)}</td>
-        <td>${pct(row.nbiAverage)}</td>
-        <td>${fmt(row.covered)}</td>
-        <td>${pct(row.coveredPct)}</td>
-      </tr>`,
-    )
-    .join("");
+  const isBus = state.mode === "bus";
+  const times = isBus ? [15, 30, 45] : [5, 10, 15];
+  
+  if (state.selectedSchool === "all") {
+    const schoolsList = ["walsh", "pizarnik", "galeano"];
+    const schoolNames = { walsh: "Walsh", galeano: "Galeano", pizarnik: "Pizarnik" };
+    
+    document.getElementById("analysisHeader").innerHTML = `
+      <th>Tiempo</th>
+      <th>Indicador</th>
+      ${schoolsList.map(s => `<th>${schoolNames[s]}</th>`).join('')}
+    `;
+
+    const allData = state.data.schools.features.reduce((acc, school) => {
+      acc[school.properties.school_id] = analysisForSchool(school);
+      return acc;
+    }, {});
+
+    const rows = [];
+    times.filter(t => t <= state.maxTime).forEach(time => {
+      const nbiCells = schoolsList.map(sId => {
+        const d = allData[sId]?.find(x => x.minutes === time);
+        return `<td>${d ? pct(d.nbiAverage) : "-"}</td>`;
+      }).join("");
+      
+      const pctCells = schoolsList.map(sId => {
+        const d = allData[sId]?.find(x => x.minutes === time);
+        return `<td>${d ? pct(d.coveredPct) : "-"}</td>`;
+      }).join("");
+
+      rows.push(`
+        <tr>
+          <td rowspan="2" style="vertical-align: middle;"><strong>${time} min</strong></td>
+          <td>NBI prom.</td>
+          ${nbiCells}
+        </tr>
+        <tr>
+          <td>% matrícula</td>
+          ${pctCells}
+        </tr>
+      `);
+    });
+    
+    document.getElementById("analysisRows").innerHTML = rows.join("");
+  } else {
+    const sId = state.selectedSchool;
+    const schoolNames = { walsh: "Walsh", galeano: "Galeano", pizarnik: "Pizarnik" };
+    document.getElementById("analysisHeader").innerHTML = `
+      <th>Tiempo</th>
+      <th>Indicador</th>
+      <th>${schoolNames[sId]}</th>
+    `;
+    const dList = analysisForSchool(state.data.schools.features.find(s => s.properties.school_id === sId));
+    const rows = [];
+    times.filter(t => t <= state.maxTime).forEach(time => {
+      const d = dList.find(x => x.minutes === time);
+      rows.push(`
+        <tr>
+          <td rowspan="2" style="vertical-align: middle;"><strong>${time} min</strong></td>
+          <td>NBI prom.</td>
+          <td>${d ? pct(d.nbiAverage) : "-"}</td>
+        </tr>
+        <tr>
+          <td>% matrícula</td>
+          <td>${d ? pct(d.coveredPct) : "-"}</td>
+        </tr>
+      `);
+    });
+    document.getElementById("analysisRows").innerHTML = rows.join("");
+  }
+
   document.getElementById("summaryText").textContent =
     state.selectedSchool === "all"
       ? state.mode === "bus"
         ? "Comparación exploratoria: estudiantes lejanos se agrupan en paradas aproximadas; el tamaño de cada globo y de cada flujo depende de la matrícula reunida."
-        : "Comparación exploratoria entre escuelas en modo caminata: radios alcanzados, NBI promedio y matrícula georreferenciada cubierta por cada banda."
+        : "Comparación exploratoria entre escuelas en modo caminata: NBI promedio y matrícula cubierta por cada banda temporal."
       : state.mode === "bus"
         ? "Lectura focalizada: los globos indican paradas agrupadoras y los flujos muestran la matrícula que seguiría el recorrido hacia la escuela."
         : "Lectura focalizada de la escuela seleccionada y su entorno accesible en modo caminata.";
