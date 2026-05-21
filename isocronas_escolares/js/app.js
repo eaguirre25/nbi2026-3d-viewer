@@ -58,8 +58,9 @@ const map = new maplibregl.Map({
     layers: [{ id: "positron", type: "raster", source: "positron" }],
   },
   center: [-58.558, -34.575],
-  zoom: 12,
-  pitch: 0,
+  zoom: 12.5,
+  pitch: 55,
+  bearing: -15,
 });
 
 map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "bottom-right");
@@ -379,20 +380,22 @@ function addLayers() {
 
   map.addLayer({
     id: "iso-fill",
-    type: "fill",
+    type: "fill-extrusion",
     source: "isochrones",
     paint: {
-      "fill-color": ["match", ["get", "minutes"], 5, TIME_COLORS[5], 10, TIME_COLORS[10], 15, TIME_COLORS[15], TIME_COLORS[20]],
-      "fill-opacity": state.isoOpacity,
+      "fill-extrusion-color": ["match", ["get", "minutes"], 5, TIME_COLORS[5], 10, TIME_COLORS[10], 15, TIME_COLORS[15], TIME_COLORS[20]],
+      "fill-extrusion-height": ["match", ["get", "minutes"], 5, 300, 10, 200, 15, 100, 50],
+      "fill-extrusion-opacity": state.isoOpacity,
     },
   });
   map.addLayer({
     id: "bus-iso-fill",
-    type: "fill",
+    type: "fill-extrusion",
     source: "isochrones-bus",
     paint: {
-      "fill-color": ["interpolate", ["linear"], ["get", "minutes"], 15, "#6ff2ff", 30, "#1677ff", 45, "#8a2be2", 60, "#35108c"],
-      "fill-opacity": state.isoOpacity,
+      "fill-extrusion-color": ["interpolate", ["linear"], ["get", "minutes"], 15, "#6ff2ff", 30, "#1677ff", 45, "#8a2be2", 60, "#35108c"],
+      "fill-extrusion-height": ["interpolate", ["linear"], ["get", "minutes"], 15, 300, 30, 200, 45, 100, 60, 50],
+      "fill-extrusion-opacity": state.isoOpacity,
     },
   });
   map.addLayer({
@@ -499,8 +502,8 @@ function updateFilters() {
   map.setFilter("bus-iso-fill", ["all", schoolFilter, timeFilter]);
   map.setFilter("bus-iso-line", ["all", schoolFilter, timeFilter]);
   map.setFilter("matricula", state.selectedSchool === "all" ? null : ["==", ["get", "school_id"], state.selectedSchool]);
-  map.setPaintProperty("iso-fill", "fill-opacity", state.isoOpacity);
-  map.setPaintProperty("bus-iso-fill", "fill-opacity", state.isoOpacity);
+  map.setPaintProperty("iso-fill", "fill-extrusion-opacity", state.isoOpacity);
+  map.setPaintProperty("bus-iso-fill", "fill-extrusion-opacity", state.isoOpacity);
   map.setPaintProperty("nbi-fill", "fill-opacity", state.nbiOpacity);
   map.setPaintProperty("school-points", "circle-radius", ["case", ["==", ["get", "school_id"], state.selectedSchool], 12, 9]);
   layerVisible("matricula", state.visible.matricula && state.mode === "walk");
@@ -937,3 +940,10 @@ map.on("load", () => {
     document.getElementById("summaryText").textContent = "No se pudo cargar el visor. Revisar rutas y consola.";
   });
 });
+
+const mobileToggleBtn = document.getElementById("mobileToggle");
+if (mobileToggleBtn) {
+  mobileToggleBtn.addEventListener("click", () => {
+    document.body.classList.toggle("panels-hidden");
+  });
+}
