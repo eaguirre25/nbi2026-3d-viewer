@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Modo defensa | Mapa 3D San Martín</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#03060d;color:#eef8fb;font-family:Segoe UI,Arial,sans-serif}#stage{position:fixed;inset:0;background:#000}iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.hud{position:absolute;left:22px;top:22px;width:min(520px,calc(100vw - 44px));padding:16px 18px;border:1px solid rgba(0,224,255,.45);border-radius:18px;background:rgba(4,10,18,.78);backdrop-filter:blur(8px);box-shadow:0 0 35px rgba(0,224,255,.15);z-index:5}.hud.hide,.keys.hide{display:none}.eyebrow{margin:0 0 8px;color:#00e0ff;font-size:12px;letter-spacing:.22em;text-transform:uppercase}h1{margin:0;font-size:25px;line-height:1.08;text-shadow:0 0 15px rgba(0,224,255,.45)}#title{margin:12px 0 0;font-size:18px;font-weight:800}#desc{margin:6px 0 0;color:#9bb4c2;font-size:14px;line-height:1.35}.counter{position:absolute;right:16px;top:14px;color:#ffd45c;font-variant-numeric:tabular-nums}.bar{height:5px;background:rgba(255,255,255,.13);border-radius:999px;margin-top:14px;overflow:hidden}.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#00e0ff,#a56bff);box-shadow:0 0 18px #00e0ff}.keys{position:absolute;left:22px;right:22px;bottom:22px;padding:10px 14px;border:1px solid rgba(0,224,255,.25);border-radius:14px;background:rgba(0,0,0,.46);font-size:13px;color:#9bb4c2;z-index:5;display:flex;justify-content:space-between;gap:14px}kbd{border:1px solid rgba(255,255,255,.25);border-bottom-width:2px;border-radius:6px;padding:2px 6px;color:#eef8fb;background:rgba(255,255,255,.08)}#msg{position:absolute;right:22px;top:22px;max-width:430px;padding:12px 14px;border:1px solid rgba(255,212,92,.5);border-radius:14px;background:rgba(20,12,0,.78);color:#ffe9a4;z-index:7;display:none}@media(max-width:900px){.keys{display:block;line-height:1.8}.hud{width:calc(100vw - 44px)}h1{font-size:20px}}
+</style>
+</head>
+<body>
+<div id="stage">
+<iframe id="mapFrame" src="index.html" title="Mapa 3D San Martín" allowfullscreen></iframe>
+<section class="hud" id="hud"><span class="counter" id="counter">01 / 11</span><p class="eyebrow">Modo defensa</p><h1>Cartografías enredadas de la dirección escolar</h1><div id="title">Cargando mapa</div><p id="desc">Cuando termine de cargar, usá flecha derecha e izquierda para controlar la presentación.</p><div class="bar"><span id="bar"></span></div></section>
+<div class="keys" id="keys"><span><kbd>→</kbd>/<kbd>←</kbd> escenas · <kbd>1-9</kbd> salto · <kbd>WASD</kbd> mover · <kbd>Z/C</kbd> zoom · <kbd>Q/E</kbd> giro</span><span><kbd>F</kbd> pantalla completa · <kbd>H</kbd> HUD · <kbd>R</kbd> repetir</span></div>
+<div id="msg"></div>
+</div>
+<script>
+const frame=document.getElementById('mapFrame');let current=0;
+const scenes=[
+['Inicio espacial','Vista de arranque desde una escala territorial amplia.',w=>w.setIntroStartView&&w.setIntroStartView()],
+['Ingreso al territorio','Secuencia automática de aproximación al Partido de San Martín.',w=>w.startIntroSequence&&w.startIntroSequence()],
+['Vista general de San Martín','El mapa se centra en el partido y estabiliza la lectura territorial.',w=>{surface(w);enroll(w,false);w.flyOverview&&w.flyOverview()}],
+['Relieve socioeconómico','Superficie 3D de NBI, con altura y color como lectura de desigualdad.',w=>{surface(w);enroll(w,false);renabap(w,false);fly(w,-58.558,-34.585,5200,334,-34,1)}],
+['Radios censales','Cambio a unidades de radio para mostrar la trama censal de base.',w=>{radios(w);enroll(w,false);renabap(w,false);fly(w,-58.558,-34.585,4700,340,-35,1)}],
+['RENABAP','Villas y asentamientos en relación con la superficie NBI.',w=>{surface(w);enroll(w,false);renabap(w,true);fly(w,-58.556,-34.586,4100,338,-32,1)}],
+['Escuelas seleccionadas','Walsh, Galeano y Pizarnik como puntos de anclaje institucional.',w=>{surface(w);renabap(w,true);enroll(w,true);filterSchool(w,null);fly(w,-58.558,-34.585,3600,338,-30,1)}],
+['Matrícula Walsh','Se filtra la matrícula de la Escuela Walsh.',w=>focusSchool(w,'Walsh')],
+['Matrícula Galeano','Se filtra la matrícula de la Escuela Galeano.',w=>focusSchool(w,'Galeano')],
+['Matrícula Pizarnik','Se filtra la matrícula de la Escuela Pizarnik.',w=>focusSchool(w,'Pizarnik')],
+['Matrícula total','Las tres matrículas quedan visibles para la comparación final.',w=>{surface(w);renabap(w,true);enroll(w,true);filterSchool(w,null);fly(w,-58.558,-34.585,3300,342,-28,1)}]
+];
+function win(){try{const w=frame.contentWindow;return w&&w.viewer&&w.Cesium&&w.state?w:null}catch(e){return null}}
+function flash(t){const m=document.getElementById('msg');m.textContent=t;m.style.display='block';clearTimeout(flash.t);flash.t=setTimeout(()=>m.style.display='none',2500)}
+function hud(){title.textContent=scenes[current][0];desc.textContent=scenes[current][1];counter.textContent=String(current+1).padStart(2,'0')+' / '+String(scenes.length).padStart(2,'0');bar.style.width=((current+1)/scenes.length*100)+'%'}
+function go(i){current=Math.max(0,Math.min(scenes.length-1,i));hud();const w=win();if(!w){flash('El mapa todavía está cargando. Esperá unos segundos y tocá R.');return}try{scenes[current][2](w);w.viewer.scene.requestRender()}catch(e){console.error(e);flash('No pude ejecutar esta escena. Esperá a que cargue todo el mapa.')}}
+function fly(w,lon,lat,h,head,pitch,d){w.viewer.camera.flyTo({destination:w.Cesium.Cartesian3.fromDegrees(lon,lat,h),orientation:{heading:w.Cesium.Math.toRadians(head),pitch:w.Cesium.Math.toRadians(pitch),roll:0},duration:d})}
+function surface(w){if(w.setMode)w.setMode('surface');else{w.state.mode='surface';w.refreshAllStyles&&w.refreshAllStyles()}}
+function radios(w){if(w.setMode)w.setMode('radios');else{w.state.mode='radios';w.refreshAllStyles&&w.refreshAllStyles()}}
+function renabap(w,v){w.state.renabapVisible=v;w.refreshAllStyles&&w.refreshAllStyles()}
+function enroll(w,v){w.state.enrollmentVisible=v;w.refreshAllStyles&&w.refreshAllStyles();const b=w.document.getElementById('enrollmentMode');if(b)b.setAttribute('aria-pressed',String(v))}
+function val(p,t){try{return p&&p.getValue?p.getValue(t):p}catch(e){return p}}
+function filterSchool(w,school){const now=w.Cesium.JulianDate.now();w.state.enrollmentEntities.forEach(e=>{const s=val(e.properties&&e.properties.enrollmentSchool,now);e.show=w.state.enrollmentVisible&&(!school||s===school)});w.state.schoolEntities.forEach(e=>{const s=val(e.properties&&e.properties.schoolName,now)||'';e.show=w.state.enrollmentVisible&&(!school||s.toLowerCase().includes(school.toLowerCase()))});w.viewer.scene.requestRender()}
+function avgSchool(w,school){const now=w.Cesium.JulianDate.now();const pts=w.state.enrollmentEntities.filter(e=>val(e.properties&&e.properties.enrollmentSchool,now)===school);let lon=0,lat=0,n=0;pts.forEach(e=>{const p=e.position&&e.position.getValue&&e.position.getValue(now);if(!p)return;const c=w.Cesium.Cartographic.fromCartesian(p);lon+=w.Cesium.Math.toDegrees(c.longitude);lat+=w.Cesium.Math.toDegrees(c.latitude);n++});return n?{lon:lon/n,lat:lat/n}:{lon:-58.558,lat:-34.585}}
+function focusSchool(w,school){surface(w);renabap(w,true);enroll(w,true);filterSchool(w,school);const c=avgSchool(w,school);fly(w,c.lon,c.lat,2200,342,-28,1)}
+function move(k){const w=win();if(!w)return;const h=Math.max(1000,w.viewer.camera.positionCartographic.height),m=Math.max(60,h*.018),z=Math.max(120,h*.05),turn=w.Cesium.Math.toRadians(3);if(k==='w')w.viewer.camera.moveForward(m);if(k==='s')w.viewer.camera.moveBackward(m);if(k==='a')w.viewer.camera.moveLeft(m);if(k==='d')w.viewer.camera.moveRight(m);if(k==='z')w.viewer.camera.moveForward(z);if(k==='c')w.viewer.camera.moveBackward(z);if(k==='q')w.viewer.camera.lookLeft(turn);if(k==='e')w.viewer.camera.lookRight(turn);w.viewer.scene.requestRender()}
+function full(){const el=document.getElementById('stage');if(!document.fullscreenElement)el.requestFullscreen&&el.requestFullscreen();else document.exitFullscreen&&document.exitFullscreen()}
+document.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(k==='arrowright'){e.preventDefault();go(current+1)}else if(k==='arrowleft'){e.preventDefault();go(current-1)}else if(k==='r'){e.preventDefault();go(current)}else if(k==='f'){e.preventDefault();full()}else if(k==='h'){e.preventDefault();document.getElementById('hud').classList.toggle('hide');document.getElementById('keys').classList.toggle('hide')}else if('wasdzcqe'.includes(k)){e.preventDefault();move(k)}else if(/^[1-9]$/.test(k)){e.preventDefault();go(Number(k)-1)}else if(k==='0'){e.preventDefault();go(9)}});
+frame.addEventListener('load',()=>setTimeout(()=>go(0),1600));hud();
+</script>
+</body></html>
