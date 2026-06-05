@@ -588,7 +588,43 @@ function analysisForSchool(school) {
     .filter(Boolean);
 }
 
+function updateBusCoverage() {
+  const schools =
+    state.selectedSchool === "all"
+      ? state.data.schools.features
+      : state.data.schools.features.filter((feature) => feature.properties.school_id === state.selectedSchool);
+  const totals = schoolTotals();
+  const container = document.getElementById("busCoverageRows");
+  if (!container) return;
+  container.innerHTML = schools
+    .map((school) => {
+      const id = school.properties.school_id;
+      const iso = (state.data.busIso?.features || []).find(
+        (feature) => feature.properties.school_id === id && feature.properties.minutes === state.maxTime,
+      );
+      if (!iso) return `<div style="padding:8px 10px; margin-bottom:8px; color:#888;">${school.properties.school_name.replace("Escuela ", "")} — sin datos de isócrona</div>`;
+      const schoolPoints = state.data.matricula.features.filter((feature) => feature.properties.school_id === id);
+      let covered = 0;
+      schoolPoints.forEach((point) => {
+        try { if (turf.booleanPointInPolygon(point, iso)) covered++; } catch {}
+      });
+      const total = totals[id] || 1;
+      const covPct = (covered / total) * 100;
+      const color = SCHOOL_COLORS[id];
+      return `<div style="border-left:3px solid ${color}; padding:8px 12px; margin-bottom:10px; background:rgba(255,255,255,0.04); border-radius:4px;">
+        <span style="font-weight:600; color:${color}; font-size:13px;">${school.properties.school_name.replace("Escuela ", "")}</span>
+        <strong style="display:block; font-size:24px; margin:4px 0; color:#f1f5f9;">${covPct.toFixed(1)}%</strong>
+        <span style="font-size:11px; color:#94a3b8;">${fmt(covered)} de ${fmt(total)} estudiantes dentro de ${state.maxTime} min en colectivo</span>
+      </div>`;
+    })
+    .join("");
+}
+
 function updateAnalysis() {
+  if (state.mode === "bus") {
+    updateBusCoverage();
+    return;
+  }
   const schools =
     state.selectedSchool === "all"
       ? state.data.schools.features
@@ -728,6 +764,9 @@ function setupControls() {
     document.getElementById("modeBus").setAttribute("aria-pressed", String(mode === "bus"));
     document.getElementById("busParams").hidden = mode !== "bus";
     document.getElementById("busLegend").hidden = mode !== "bus";
+    document.getElementById("walkLegendSection").hidden = mode === "bus";
+    document.getElementById("analysisPanel").hidden = mode === "bus";
+    document.getElementById("busCoveragePanel").hidden = mode !== "bus";
     const timeSelect = document.getElementById("timeSelect");
     const times = state.mode === "bus" ? [15, 30, 45, 60] : [5, 10, 15, 20];
     timeSelect.innerHTML = times.map((time) => `<option value="${time}">${time} minutos</option>`).join("");

@@ -93,10 +93,10 @@ viewer.scene.fog.enabled = true;
 viewer.scene.fog.density = 0.00018;
 viewer.scene.highDynamicRange = true;
 viewer.camera.setView({
-  destination: Cesium.Cartesian3.fromDegrees(-58.558, -34.585, 6200),
+  destination: Cesium.Cartesian3.fromDegrees(-58.548, -34.592, 7800),
   orientation: {
-    heading: Cesium.Math.toRadians(334),
-    pitch: Cesium.Math.toRadians(-36),
+    heading: Cesium.Math.toRadians(326),
+    pitch: Cesium.Math.toRadians(-43),
     roll: 0,
   },
 });

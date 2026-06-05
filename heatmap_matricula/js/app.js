@@ -172,7 +172,7 @@ function addLayers() {
     source: "radar-waves",
     paint: {
       "fill-color": ["get", "color"],
-      "fill-opacity": ["*", ["get", "opacity"], 0.08],
+      "fill-opacity": ["*", ["get", "opacity"], 0.22],
     },
   });
   map.addLayer({
@@ -181,7 +181,7 @@ function addLayers() {
     source: "radar-waves",
     paint: {
       "line-color": ["get", "color"],
-      "line-width": ["interpolate", ["linear"], ["get", "opacity"], 0, 0.4, 1, 2.8],
+      "line-width": ["interpolate", ["linear"], ["get", "opacity"], 0, 0.8, 1, 5.0],
       "line-opacity": ["get", "opacity"],
     },
   });
@@ -295,7 +295,7 @@ function buildRingFeatures() {
 function buildRadarWaveFeatures(timestamp = performance.now()) {
   if (!state.visible.rings) return featureCollection([]);
   const features = [];
-  const cycle = 2600;
+  const cycle = 1900;
   const phases = [0, 0.33, 0.66];
   schoolFeatures().forEach((school) => {
     const id = school.properties.school_id;
@@ -308,7 +308,7 @@ function buildRadarWaveFeatures(timestamp = performance.now()) {
         school_id: id,
         meters,
         color: SCHOOL_COLORS[id],
-        opacity: Math.max(0, 0.9 * (1 - progress)),
+        opacity: Math.max(0, 1.0 * (1 - progress)),
       };
       features.push(wave);
     });

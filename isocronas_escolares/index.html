@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Isócronas escolares · San Martín</title>
     <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/styles.css?v=20260605-v2" />
+    <link rel="stylesheet" href="css/styles.css?v=20260605-v3" />
   </head>
   <body>
     <main id="map" aria-label="Mapa de isócronas escolares de San Martín"></main>
@@ -74,8 +74,8 @@
         <div><span class="swatch nbi"></span>NBI</div>
         <div><span class="swatch renabap"></span>RENABAP</div>
       </section>
-      <section class="legend-section">
-        <h3 id="legendTimeTitle">Peatonal</h3>
+      <section class="legend-section" id="walkLegendSection">
+      <h3 id="legendTimeTitle">Peatonal</h3>
         <div><span class="line walk-school"></span>Movilidad peatonal</div>
         <div><span class="swatch t5"></span><span id="legendT1">5 minutos</span></div>
         <div><span class="swatch t10"></span><span id="legendT2">10 minutos</span></div>
@@ -90,7 +90,7 @@
       </section>
     </aside>
 
-    <aside class="panel analysis" aria-label="Lectura">
+    <aside class="panel analysis" id="analysisPanel" aria-label="Lectura">
       <h2>Lectura</h2>
       <div class="summary" id="summaryText">Cargando indicadores...</div>
       <table>
@@ -111,8 +111,14 @@
       </p>
     </aside>
 
+    <aside class="panel analysis" id="busCoveragePanel" hidden aria-label="Cobertura colectivo">
+      <h2>Cobertura en colectivo</h2>
+      <p class="summary" id="busSummaryText">Matrícula alcanzable según el tiempo de viaje seleccionado.</p>
+      <div id="busCoverageRows"></div>
+      <p class="note">Estimación exploratoria. Incluye caminata a parada, viaje en colectivo y distancia de llegada a la escuela.</p>
+    </aside>
     <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
     <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
-    <script src="js/app.js?v=20260605-v2"></script>
+    <script src="js/app.js?v=20260605-v3"></script>
   </body>
 </html>
