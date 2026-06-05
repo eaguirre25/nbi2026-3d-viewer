@@ -1,4 +1,4 @@
-html,
+﻿html,
 body,
 #cesiumContainer {
   width: 100%;
@@ -492,4 +492,85 @@ dd {
     bottom: 12px;
     width: calc(100vw - 24px);
   }
+}
+
+/* ── Distribución NBI por escuela (barras apiladas) ── */
+.school-dist {
+  display: grid;
+  gap: 10px;
+  margin: 10px 0 4px;
+}
+
+.dist-row {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.dist-name {
+  font-size: 11px;
+  font-weight: 780;
+  letter-spacing: 0.02em;
+}
+
+.dist-name.walsh-name   { color: #ffffff; }
+.dist-name.galeano-name { color: #59d8ff; }
+.dist-name.pizarnik-name{ color: #c8a7ff; }
+
+.dist-bar {
+  display: flex;
+  height: 28px;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.dist-seg {
+  height: 100%;
+  min-width: 0;
+  transition: width 0.55s cubic-bezier(.4,0,.2,1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.dist-seg[data-q="1"] { background: #003d2f; color: rgba(255,255,255,0.85); }
+.dist-seg[data-q="2"] { background: #6fc34a; color: rgba(0,0,0,0.72); }
+.dist-seg[data-q="3"] { background: #f0d84f; color: rgba(0,0,0,0.72); }
+.dist-seg[data-q="4"] { background: #f28a2e; color: rgba(0,0,0,0.72); }
+.dist-seg[data-q="5"] { background: #d7191c; color: rgba(255,255,255,0.9); }
+
+.dist-seg:hover {
+  filter: brightness(1.18);
+}
+
+/* Tooltip on hover */
+.dist-seg::after {
+  content: attr(data-tip);
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(9,10,11,0.95);
+  color: #f7f7f3;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.18);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.dist-bar {
+  position: relative;
 }

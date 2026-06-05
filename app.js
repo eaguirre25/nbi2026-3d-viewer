@@ -752,8 +752,19 @@ function updateSchoolDistribution(school, prefix) {
   });
   const total = Math.max(1, entities.length);
   counts.forEach((count, id) => {
-    const element = document.getElementById(`${prefix}-${id}`);
-    if (element) element.textContent = `${((count / total) * 100).toFixed(1)}%`;
+    const pct = (count / total) * 100;
+    const klass = CLASSES.find((c) => c.id === id);
+    const rangeLabel = klass ? klass.label.replace(/^P\d+-P\d+:\s*/, "").replace(/^>/, ">") : "";
+    const tipText = `${rangeLabel} → ${pct.toFixed(1)}%`;
+    // Update stacked bar segment
+    const seg = document.getElementById(`seg-${prefix}-${id}`);
+    if (seg) {
+      seg.style.width = `${pct}%`;
+      seg.title = tipText;
+      seg.setAttribute("data-tip", tipText);
+      // Show % text inside segment if wide enough
+      seg.textContent = pct >= 14 ? `${pct.toFixed(0)}%` : "";
+    }
   });
 }
 
@@ -1530,20 +1541,7 @@ document.getElementById("heatmapLink").addEventListener("click", () => {
 
 setupKeyboardNavigation();
 
-document.querySelectorAll(".legend-row").forEach((button) => {
-  button.addEventListener("click", () => {
-    const classId = Number(button.dataset.class);
-    if (state.activeClasses.has(classId)) {
-      state.activeClasses.delete(classId);
-      button.classList.remove("active");
-      button.setAttribute("aria-pressed", "false");
-    } else {
-      state.activeClasses.add(classId);
-      button.classList.add("active");
-      button.setAttribute("aria-pressed", "true");
-    }
-    refreshAllStyles();
-  });
+
 });
 
 const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);

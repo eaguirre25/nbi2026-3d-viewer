@@ -9,7 +9,7 @@
       rel="stylesheet"
     />
     <meta http-equiv="Cache-Control" content="no-store" />
-    <link rel="stylesheet" href="styles.css?v=20260605-v3" />
+    <link rel="stylesheet" href="styles.css?v=20260605-v4" />
   </head>
   <body>
     <main id="cesiumContainer" aria-label="Visor 3D de condiciones socioeconómicas"></main>
@@ -52,53 +52,38 @@
           <span>medio</span>
           <span>mayor</span>
         </div>
-        <div class="legend-head">
-          <span>Rango NBI</span>
-          <span>Radios</span>
-          <span>% Escuela Walsh</span>
-          <span>% Escuela Galeano</span>
-          <span>% Escuela Pizarnik</span>
+        <div class="school-dist" aria-label="Distribución de matrícula por quintil NBI">
+          <div class="dist-row">
+            <span class="dist-name walsh-name">Walsh</span>
+            <div class="dist-bar">
+              <span class="dist-seg" data-q="1" id="seg-walsh-1" title=""></span>
+              <span class="dist-seg" data-q="2" id="seg-walsh-2" title=""></span>
+              <span class="dist-seg" data-q="3" id="seg-walsh-3" title=""></span>
+              <span class="dist-seg" data-q="4" id="seg-walsh-4" title=""></span>
+              <span class="dist-seg" data-q="5" id="seg-walsh-5" title=""></span>
+            </div>
+          </div>
+          <div class="dist-row">
+            <span class="dist-name galeano-name">Galeano</span>
+            <div class="dist-bar">
+              <span class="dist-seg" data-q="1" id="seg-galeano-1" title=""></span>
+              <span class="dist-seg" data-q="2" id="seg-galeano-2" title=""></span>
+              <span class="dist-seg" data-q="3" id="seg-galeano-3" title=""></span>
+              <span class="dist-seg" data-q="4" id="seg-galeano-4" title=""></span>
+              <span class="dist-seg" data-q="5" id="seg-galeano-5" title=""></span>
+            </div>
+          </div>
+          <div class="dist-row">
+            <span class="dist-name pizarnik-name">Pizarnik</span>
+            <div class="dist-bar">
+              <span class="dist-seg" data-q="1" id="seg-pizarnik-1" title=""></span>
+              <span class="dist-seg" data-q="2" id="seg-pizarnik-2" title=""></span>
+              <span class="dist-seg" data-q="3" id="seg-pizarnik-3" title=""></span>
+              <span class="dist-seg" data-q="4" id="seg-pizarnik-4" title=""></span>
+              <span class="dist-seg" data-q="5" id="seg-pizarnik-5" title=""></span>
+            </div>
+          </div>
         </div>
-        <button class="legend-row active" data-class="1" type="button" aria-pressed="true">
-          <span class="swatch q1"></span>
-          <span>0 - 4</span>
-          <strong id="count-1">0</strong>
-          <em id="walsh-1">0%</em>
-          <em id="galeano-1">0%</em>
-          <em id="pizarnik-1">0%</em>
-        </button>
-        <button class="legend-row active" data-class="2" type="button" aria-pressed="true">
-          <span class="swatch q2"></span>
-          <span>4 - 8,8</span>
-          <strong id="count-2">0</strong>
-          <em id="walsh-2">0%</em>
-          <em id="galeano-2">0%</em>
-          <em id="pizarnik-2">0%</em>
-        </button>
-        <button class="legend-row active" data-class="3" type="button" aria-pressed="true">
-          <span class="swatch q3"></span>
-          <span>8,8 - 15,9</span>
-          <strong id="count-3">0</strong>
-          <em id="walsh-3">0%</em>
-          <em id="galeano-3">0%</em>
-          <em id="pizarnik-3">0%</em>
-        </button>
-        <button class="legend-row active" data-class="4" type="button" aria-pressed="true">
-          <span class="swatch q4"></span>
-          <span>15,9 - 28,6</span>
-          <strong id="count-4">0</strong>
-          <em id="walsh-4">0%</em>
-          <em id="galeano-4">0%</em>
-          <em id="pizarnik-4">0%</em>
-        </button>
-        <button class="legend-row active" data-class="5" type="button" aria-pressed="true">
-          <span class="swatch q5"></span>
-          <span>28,6 - 54,5</span>
-          <strong id="count-5">0</strong>
-          <em id="walsh-5">0%</em>
-          <em id="galeano-5">0%</em>
-          <em id="pizarnik-5">0%</em>
-        </button>
       </section>
 
       <section class="controls" aria-label="Controles">
@@ -112,6 +97,6 @@
     <div id="hoverTip" class="hover-tip" hidden></div>
 
     <script src="https://cdn.jsdelivr.net/npm/cesium@1.120.0/Build/Cesium/Cesium.js"></script>
-    <script src="app.js?v=20260605-v3"></script>
+    <script src="app.js?v=20260605-v4"></script>
   </body>
 </html>
