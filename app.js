@@ -1541,9 +1541,6 @@ document.getElementById("heatmapLink").addEventListener("click", () => {
 
 setupKeyboardNavigation();
 
-
-});
-
 const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 setupMouseOrbit();
 
