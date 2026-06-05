@@ -1,4 +1,4 @@
-const CLASSES = [
+﻿const CLASSES = [
   { id: 1, label: "Q1", min: 0, max: 0, color: "#003d2f", height: 140 },
   { id: 2, label: "Q2", min: 0, max: 0, color: "#6fc34a", height: 320 },
   { id: 3, label: "Q3", min: 0, max: 0, color: "#f0d84f", height: 560 },
