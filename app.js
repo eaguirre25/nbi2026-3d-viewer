@@ -1234,13 +1234,14 @@ function updateStats(features) {
     totalPopulation += Number(props.pob_tot || 0);
   });
 
-  counts.forEach((count, id) => {
-    document.getElementById(`count-${id}`).textContent = count;
-  });
-  document.getElementById("totalFeatures").textContent = formatNumber(features.length);
-  document.getElementById("maxNbi").textContent = `${maxNbi.toFixed(1)}%`;
-  document.getElementById("totalNbiHomes").textContent = formatNumber(totalNbiHomes);
-  document.getElementById("totalPopulation").textContent = formatNumber(totalPopulation);
+  const elFeatures = document.getElementById("totalFeatures");
+  const elMaxNbi = document.getElementById("maxNbi");
+  const elNbiHomes = document.getElementById("totalNbiHomes");
+  const elPopulation = document.getElementById("totalPopulation");
+  if (elFeatures) elFeatures.textContent = formatNumber(features.length);
+  if (elMaxNbi) elMaxNbi.textContent = `${maxNbi.toFixed(1)}%`;
+  if (elNbiHomes) elNbiHomes.textContent = formatNumber(totalNbiHomes);
+  if (elPopulation) elPopulation.textContent = formatNumber(totalPopulation);
 }
 
 function updateDetail(entity) {
