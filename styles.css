@@ -541,11 +541,18 @@ dd {
   cursor: default;
 }
 
-.dist-seg[data-q="1"] { background: #003d2f; color: rgba(255,255,255,0.85); }
-.dist-seg[data-q="2"] { background: #6fc34a; color: rgba(0,0,0,0.72); }
-.dist-seg[data-q="3"] { background: #f0d84f; color: rgba(0,0,0,0.72); }
-.dist-seg[data-q="4"] { background: #f28a2e; color: rgba(0,0,0,0.72); }
-.dist-seg[data-q="5"] { background: #d7191c; color: rgba(255,255,255,0.9); }
+.dist-seg.seg-low  {
+  background: linear-gradient(90deg, #003d2f 0%, #6fc34a 100%);
+  color: rgba(255,255,255,0.92);
+}
+.dist-seg.seg-mid  {
+  background: #f0d84f;
+  color: rgba(0,0,0,0.75);
+}
+.dist-seg.seg-high {
+  background: linear-gradient(90deg, #f28a2e 0%, #d7191c 100%);
+  color: rgba(255,255,255,0.92);
+}
 
 .dist-seg:hover {
   filter: brightness(1.18);

@@ -751,20 +751,26 @@ function updateSchoolDistribution(school, prefix) {
     counts.set(id, (counts.get(id) || 0) + 1);
   });
   const total = Math.max(1, entities.length);
-  counts.forEach((count, id) => {
-    const pct = (count / total) * 100;
-    const klass = CLASSES.find((c) => c.id === id);
-    const rangeLabel = klass ? klass.label.replace(/^P\d+-P\d+:\s*/, "").replace(/^>/, ">") : "";
-    const tipText = `${rangeLabel} → ${pct.toFixed(1)}%`;
-    // Update stacked bar segment
-    const seg = document.getElementById(`seg-${prefix}-${id}`);
-    if (seg) {
-      seg.style.width = `${pct}%`;
-      seg.title = tipText;
-      seg.setAttribute("data-tip", tipText);
-      // Show % text inside segment if wide enough
-      seg.textContent = pct >= 14 ? `${pct.toFixed(0)}%` : "";
-    }
+
+  // Group into 3 blocks: low (Q1+Q2), mid (Q3), high (Q4+Q5)
+  const pctLow  = ((counts.get(1) || 0) + (counts.get(2) || 0)) / total * 100;
+  const pctMid  = ((counts.get(3) || 0)) / total * 100;
+  const pctHigh = ((counts.get(4) || 0) + (counts.get(5) || 0)) / total * 100;
+
+  const blocks = [
+    { suffix: "low",  pct: pctLow,  label: "NBI bajo (Q1+Q2)" },
+    { suffix: "mid",  pct: pctMid,  label: "NBI medio (Q3)" },
+    { suffix: "high", pct: pctHigh, label: "NBI alto (Q4+Q5)" },
+  ];
+
+  blocks.forEach(({ suffix, pct, label }) => {
+    const seg = document.getElementById("seg-" + prefix + "-" + suffix);
+    if (!seg) return;
+    seg.style.width = pct.toFixed(1) + "%";
+    const tip = label + ": " + pct.toFixed(1) + "%";
+    seg.title = tip;
+    seg.setAttribute("data-tip", tip);
+    seg.textContent = pct >= 10 ? pct.toFixed(0) + "%" : "";
   });
 }
 
