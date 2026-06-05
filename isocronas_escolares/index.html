@@ -1,11 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Isócronas escolares · San Martín</title>
     <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/styles.css?v=20260508-galeanostops01" />
+    <link rel="stylesheet" href="css/styles.css?v=20260605-v2" />
   </head>
   <body>
     <main id="map" aria-label="Mapa de isócronas escolares de San Martín"></main>
@@ -82,7 +82,7 @@
         <div><span class="swatch t15"></span><span id="legendT3">15 minutos</span></div>
         <div><span class="swatch t20"></span><span id="legendT4">20 minutos</span></div>
       </section>
-      <section class="legend-section">
+      <section class="legend-section" id="busLegend" hidden>
         <h3>Transporte colectivo</h3>
         <div><span class="line walk"></span>Caminata a parada</div>
         <div><span class="line bus"></span>Flujo a escuela</div>
@@ -113,6 +113,6 @@
 
     <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
     <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
-    <script src="js/app.js?v=20260508-galeanostops01"></script>
+    <script src="js/app.js?v=20260605-v2"></script>
   </body>
 </html>

@@ -1,11 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mapa de calor de matrícula escolar</title>
     <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/styles.css?v=20260508-radarwave01" />
+    <link rel="stylesheet" href="css/styles.css?v=20260605-v2" />
   </head>
   <body>
     <main id="map" aria-label="Mapa de calor de matrícula escolar"></main>
@@ -57,18 +57,22 @@
       </header>
       <section class="radial-control">
         <span>Radio medido</span>
-        <strong id="radiusBig">1.500 m</strong>
-        <input id="radiusSlider" type="range" min="200" max="3000" step="50" value="1500" />
+        <strong id="radiusBig">500 m</strong>
+        <input id="radiusSlider" type="range" min="200" max="3000" step="50" value="500" />
       </section>
       <div class="radar-wrap">
         <svg id="radarSvg" viewBox="0 0 260 260" role="img" aria-label="Radar radial de matrícula"></svg>
       </div>
       <div id="radialBars" class="radial-bars"></div>
-      <p class="note">Cada barra resume el porcentaje de matrícula dentro de una corona de 50 m respecto del total de la escuela.</p>
+            <div id="renabapStat" class="renabap-stat" style="margin-top:10px; padding:8px 10px; background:rgba(15,118,110,0.18); border-left:3px solid #5eead4; border-radius:4px;">
+        <span style="font-size:11px; color:#94a3b8;">Matrícula en villas/asentamientos (RENABAP)</span>
+        <strong id="renabapPct" style="display:block; font-size:18px; color:#5eead4; margin-top:2px;">—</strong>
+        <span id="renabapCount" style="font-size:11px; color:#64748b;"></span>
+      </div><p class="note">Cada barra resume el porcentaje de matrícula dentro de una corona de 50 m respecto del total de la escuela.</p>
     </aside>
 
     <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
     <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
-    <script src="js/app.js?v=20260508-radarwave01"></script>
+    <script src="js/app.js?v=20260605-v2"></script>
   </body>
 </html>

@@ -485,8 +485,8 @@ function addSurfaceCell(west, south, east, north, cornerValues, centerValue, ind
 function buildSurface(features) {
   const bounds = dataBounds(features);
   const samples = features.map(featureCentroid);
-  const cols = 108;
-  const rows = 108;
+  const cols = 72;
+  const rows = 72;
   const dx = (bounds.east - bounds.west) / cols;
   const dy = (bounds.north - bounds.south) / rows;
   const rawGrid = Array.from({ length: rows + 1 }, (_, row) =>

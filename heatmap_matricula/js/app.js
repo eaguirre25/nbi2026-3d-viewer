@@ -1,4 +1,4 @@
-const SCHOOL_COLORS = {
+﻿const SCHOOL_COLORS = {
   walsh: "#94a3b8",
   galeano: "#22d3ee",
   pizarnik: "#c084fc",
@@ -12,7 +12,7 @@ const HEAT_COLORS = {
 
 const state = {
   selectedSchool: "all",
-  maxRadius: 1500,
+  maxRadius: 500,
   heatIntensity: 1.05,
   visible: { walsh: true, galeano: true, pizarnik: true, rings: true, renabap: true },
   data: {},
@@ -485,6 +485,27 @@ function fitToData() {
   );
 }
 
+
+function computeRenabapPct() {
+  const renabapFeatures = state.data.renabap.features;
+  if (!renabapFeatures || renabapFeatures.length === 0) return;
+  const allStudents = state.data.matricula.features;
+  if (!allStudents || allStudents.length === 0) return;
+  let insideCount = 0;
+  allStudents.forEach((student) => {
+    const inRenabap = renabapFeatures.some((poly) => {
+      try { return turf.booleanPointInPolygon(student, poly); }
+      catch { return false; }
+    });
+    if (inRenabap) insideCount++;
+  });
+  const total = allStudents.length;
+  const pctVal = total > 0 ? (insideCount / total) * 100 : 0;
+  const pctEl = document.getElementById("renabapPct");
+  const countEl = document.getElementById("renabapCount");
+  if (pctEl) pctEl.textContent = pctVal.toFixed(1) + "%";
+  if (countEl) countEl.textContent = fmt(insideCount) + " de " + fmt(total) + " estudiantes";
+}
 async function init() {
   const [matricula, schools, limit, renabap] = await Promise.all([
     fetchJson("../isocronas_escolares/data/matricula.geojson"),
@@ -499,6 +520,7 @@ async function init() {
   updateRadiusReadout();
   updateLayers();
   startRadarWaveAnimation();
+  computeRenabapPct();
   fitToData();
 }
 

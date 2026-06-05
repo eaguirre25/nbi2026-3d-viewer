@@ -1,4 +1,4 @@
-const TIME_COLORS = {
+﻿const TIME_COLORS = {
   5: "#6ff2ff",
   10: "#1677ff",
   15: "#8a2be2",
@@ -594,18 +594,26 @@ function updateAnalysis() {
       ? state.data.schools.features
       : state.data.schools.features.filter((feature) => feature.properties.school_id === state.selectedSchool);
   const rows = schools.flatMap(analysisForSchool);
-  document.getElementById("analysisRows").innerHTML = rows
-    .map(
-      (row) => `<tr>
-        <td>${row.school.replace("Escuela ", "")}</td>
-        <td>${row.minutes} min</td>
-        <td>${fmt(row.radios)}</td>
-        <td>${pct(row.nbiAverage)}</td>
-        <td>${fmt(row.covered)}</td>
-        <td>${pct(row.coveredPct)}</td>
-      </tr>`,
-    )
-    .join("");
+  document.getElementById("analysisRows").innerHTML = (function() {
+    const grouped = {};
+    rows.forEach((row) => {
+      const key = row.school;
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(row);
+    });
+    return Object.values(grouped)
+      .map((schoolRows) =>
+        schoolRows.map((row, i) => `<tr>
+          ${i === 0 ? `<td rowspan="${schoolRows.length}">${row.school.replace("Escuela ", "")}</td>` : ""}
+          <td>${row.minutes} min</td>
+          <td>${fmt(row.radios)}</td>
+          <td>${pct(row.nbiAverage)}</td>
+          <td>${fmt(row.covered)}</td>
+          <td>${pct(row.coveredPct)}</td>
+        </tr>`).join("")
+      )
+      .join("");
+  })();
   document.getElementById("summaryText").textContent =
     state.selectedSchool === "all"
       ? state.mode === "bus"
@@ -719,6 +727,7 @@ function setupControls() {
     document.getElementById("modeWalk").setAttribute("aria-pressed", String(mode === "walk"));
     document.getElementById("modeBus").setAttribute("aria-pressed", String(mode === "bus"));
     document.getElementById("busParams").hidden = mode !== "bus";
+    document.getElementById("busLegend").hidden = mode !== "bus";
     const timeSelect = document.getElementById("timeSelect");
     const times = state.mode === "bus" ? [15, 30, 45, 60] : [5, 10, 15, 20];
     timeSelect.innerHTML = times.map((time) => `<option value="${time}">${time} minutos</option>`).join("");
