@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mapa de calor de matrícula escolar</title>
     <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/styles.css?v=20260508-radarwave01" />
+    <link rel="stylesheet" href="css/styles.css?v=20260712-radarwave02" />
   </head>
   <body>
     <main id="map" aria-label="Mapa de calor de matrícula escolar"></main>
@@ -20,26 +20,6 @@
       </nav>
     </section>
 
-    <aside class="panel controls-panel">
-      <label>
-        Escuela
-        <select id="schoolSelect">
-          <option value="all">Todas las escuelas</option>
-        </select>
-      </label>
-      <label>
-        Intensidad de calor
-        <input id="heatSlider" type="range" min="0.35" max="1.8" step="0.05" value="1.05" />
-      </label>
-      <div class="toggle-grid">
-        <label><input id="toggleWalsh" type="checkbox" checked /> Walsh</label>
-        <label><input id="toggleGaleano" type="checkbox" checked /> Galeano</label>
-        <label><input id="togglePizarnik" type="checkbox" checked /> Pizarnik</label>
-        <label><input id="toggleRings" type="checkbox" checked /> Radar</label>
-        <label><input id="toggleRenabap" type="checkbox" checked /> RENABAP</label>
-      </div>
-    </aside>
-
     <aside class="panel legend-panel">
       <h2>Referencias</h2>
       <div><span class="dot walsh"></span>Escuela Walsh</div>
@@ -53,22 +33,29 @@
     <aside class="panel radar-panel">
       <header>
         <h2>Radar radial</h2>
-        <span id="radarSubtitle">Seleccioná una escuela</span>
+        <span id="radarSubtitle">Walsh, Galeano y Pizarnik</span>
       </header>
+
       <section class="radial-control">
         <span>Radio medido</span>
         <strong id="radiusBig">1.500 m</strong>
         <input id="radiusSlider" type="range" min="200" max="3000" step="50" value="1500" />
       </section>
+
+      <section class="renabap-summary" aria-live="polite">
+        <span class="summary-kicker">Matrícula en villas/asentamientos (RENABAP)</span>
+        <strong id="renabapPct">—</strong>
+        <span id="renabapCount">—</span>
+      </section>
+
       <div class="radar-wrap">
         <svg id="radarSvg" viewBox="0 0 260 260" role="img" aria-label="Radar radial de matrícula"></svg>
       </div>
       <div id="radialBars" class="radial-bars"></div>
-      <p class="note">Cada barra resume el porcentaje de matrícula dentro de una corona de 50 m respecto del total de la escuela.</p>
     </aside>
 
     <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
     <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
-    <script src="js/app.js?v=20260508-radarwave01"></script>
+    <script src="js/app.js?v=20260712-radarwave02"></script>
   </body>
 </html>
