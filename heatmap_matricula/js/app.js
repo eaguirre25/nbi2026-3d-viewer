@@ -13,9 +13,10 @@ const HEAT_COLORS = {
 const state = {
   selectedSchool: "all",
   maxRadius: 1500,
-  heatIntensity: 1.05,
+  heatIntensity: 1.2,
   visible: { walsh: true, galeano: true, pizarnik: true, rings: true, renabap: true },
   data: {},
+  renabapStats: {},
   radarAnimationFrame: null,
 };
 
@@ -172,7 +173,18 @@ function addLayers() {
     source: "radar-waves",
     paint: {
       "fill-color": ["get", "color"],
-      "fill-opacity": ["*", ["get", "opacity"], 0.08],
+      "fill-opacity": ["*", ["get", "opacity"], 0.18],
+    },
+  });
+  map.addLayer({
+    id: "radar-wave-glow",
+    type: "line",
+    source: "radar-waves",
+    paint: {
+      "line-color": ["get", "color"],
+      "line-width": ["interpolate", ["linear"], ["get", "opacity"], 0, 3, 1, 12],
+      "line-opacity": ["min", 0.42, ["*", ["get", "opacity"], 0.42]],
+      "line-blur": 5,
     },
   });
   map.addLayer({
@@ -181,8 +193,8 @@ function addLayers() {
     source: "radar-waves",
     paint: {
       "line-color": ["get", "color"],
-      "line-width": ["interpolate", ["linear"], ["get", "opacity"], 0, 0.4, 1, 2.8],
-      "line-opacity": ["get", "opacity"],
+      "line-width": ["interpolate", ["linear"], ["get", "opacity"], 0, 1.2, 1, 5.2],
+      "line-opacity": ["min", 1, ["*", ["get", "opacity"], 1.15]],
     },
   });
 
@@ -295,8 +307,8 @@ function buildRingFeatures() {
 function buildRadarWaveFeatures(timestamp = performance.now()) {
   if (!state.visible.rings) return featureCollection([]);
   const features = [];
-  const cycle = 2600;
-  const phases = [0, 0.33, 0.66];
+  const cycle = 2200;
+  const phases = [0, 0.18, 0.36, 0.54, 0.72];
   schoolFeatures().forEach((school) => {
     const id = school.properties.school_id;
     if (!state.visible[id]) return;
@@ -308,7 +320,7 @@ function buildRadarWaveFeatures(timestamp = performance.now()) {
         school_id: id,
         meters,
         color: SCHOOL_COLORS[id],
-        opacity: Math.max(0, 0.9 * (1 - progress)),
+        opacity: Math.max(0, 1.15 * (1 - progress)),
       };
       features.push(wave);
     });
@@ -337,6 +349,45 @@ function reachedStudentFeatures() {
     });
   });
   return featureCollection(reached);
+}
+
+function renabapStatsForSchool(id) {
+  if (state.renabapStats[id]) return state.renabapStats[id];
+
+  const students = studentFeaturesFor(id);
+  const polygons = state.data.renabap?.features || [];
+  const inside = students.filter((student) =>
+    polygons.some((polygon) => turf.booleanPointInPolygon(student, polygon)),
+  ).length;
+
+  state.renabapStats[id] = {
+    total: students.length,
+    inside,
+    pct: (inside / Math.max(1, students.length)) * 100,
+  };
+
+  return state.renabapStats[id];
+}
+
+function overallRenabapStats() {
+  const ids = ["walsh", "galeano", "pizarnik"];
+  const total = ids.reduce((sum, id) => sum + renabapStatsForSchool(id).total, 0);
+  const inside = ids.reduce((sum, id) => sum + renabapStatsForSchool(id).inside, 0);
+
+  return {
+    total,
+    inside,
+    pct: (inside / Math.max(1, total)) * 100,
+  };
+}
+
+function updateRenabapSummary() {
+  const summary = state.selectedSchool === "all"
+    ? overallRenabapStats()
+    : renabapStatsForSchool(state.selectedSchool);
+
+  document.getElementById("renabapPct").textContent = pct(summary.pct);
+  document.getElementById("renabapCount").textContent = `${fmt(summary.inside)} de ${fmt(summary.total)} estudiantes`;
 }
 
 function updateLayers() {
@@ -410,24 +461,37 @@ function updateRadar() {
   const schools = schoolFeatures();
   const school = schools[0];
   if (!school) return;
+
   const panel = document.querySelector(".radar-panel");
   document.getElementById("radarSubtitle").textContent = state.selectedSchool === "all" ? "Walsh, Galeano y Pizarnik" : school.properties.school_name;
+  updateRenabapSummary();
+
   if (state.selectedSchool === "all") {
     panel.classList.add("overview");
     document.getElementById("radarSvg").innerHTML = "";
-    document.getElementById("radialBars").innerHTML = schools
+
+    const summaries = schools
       .map((item) => {
         const { bins, total, color } = binsForSchool(item);
         const inside = bins.reduce((sum, bin) => sum + bin.count, 0);
-        return `<div class="bar-row summary-row">
-          <span>${item.properties.school_name.replace("Escuela ", "")}</span>
-          <i class="bar-track"><b class="bar-fill" style="width:${(inside / Math.max(1, total)) * 100}%; background:${color}"></b></i>
-          <strong>${pct((inside / Math.max(1, total)) * 100)}</strong>
-        </div>`;
+        return {
+          name: item.properties.school_name.replace("Escuela ", ""),
+          value: (inside / Math.max(1, total)) * 100,
+          color,
+        };
       })
+      .sort((a, b) => b.value - a.value);
+
+    document.getElementById("radialBars").innerHTML = summaries
+      .map((item) => `<div class="bar-row summary-row">
+        <span>${item.name}</span>
+        <i class="bar-track"><b class="bar-fill" style="width:${item.value}%; background:${item.color}"></b></i>
+        <strong>${pct(item.value)}</strong>
+      </div>`)
       .join("");
     return;
   }
+
   panel.classList.remove("overview");
   drawRadarForSchool(school);
 }
@@ -438,39 +502,10 @@ function updateRadiusReadout() {
 }
 
 function setupControls() {
-  const select = document.getElementById("schoolSelect");
-  state.data.schools.features.forEach((school) => {
-    const option = document.createElement("option");
-    option.value = school.properties.school_id;
-    option.textContent = school.properties.school_name;
-    select.appendChild(option);
-  });
-  select.addEventListener("change", (event) => {
-    state.selectedSchool = event.target.value;
-    updateLayers();
-    const features = schoolFeatures();
-    if (features.length === 1) map.flyTo({ center: features[0].geometry.coordinates, zoom: 13.4, duration: 800 });
-  });
   document.getElementById("radiusSlider").addEventListener("input", (event) => {
     state.maxRadius = Number(event.target.value);
     updateRadiusReadout();
     updateLayers();
-  });
-  document.getElementById("heatSlider").addEventListener("input", (event) => {
-    state.heatIntensity = Number(event.target.value);
-    updateLayers();
-  });
-  [
-    ["toggleWalsh", "walsh"],
-    ["toggleGaleano", "galeano"],
-    ["togglePizarnik", "pizarnik"],
-    ["toggleRings", "rings"],
-    ["toggleRenabap", "renabap"],
-  ].forEach(([id, key]) => {
-    document.getElementById(id).addEventListener("change", (event) => {
-      state.visible[key] = event.target.checked;
-      updateLayers();
-    });
   });
 }
 
@@ -481,7 +516,7 @@ function fitToData() {
       [bbox[0], bbox[1]],
       [bbox[2], bbox[3]],
     ],
-    { padding: { top: 60, right: 430, bottom: 70, left: 380 }, duration: 0 },
+    { padding: { top: 60, right: 470, bottom: 70, left: 48 }, duration: 0 },
   );
 }
 
